@@ -10,3 +10,4 @@ typedef struct DRAM32 {
 uint32_t dram32_load(DRAM32 *dram, uint32_t addr, uint32_t size);
 void dram32_store(DRAM32 *dram, uint32_t addr, uint32_t size, uint32_t value);
 
+DRAM32 *init_dram32();
