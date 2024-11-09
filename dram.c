@@ -11,7 +11,7 @@ uint32_t dram32_load(DRAM32 *dram, uint32_t addr, uint32_t size) {
 }
 
 static uint32_t dram32_load_byte(DRAM32 *dram, uint32_t addr) {
-   uint32_t value = *((uint8_t*)(dram->mem + addr));
+    uint32_t value = *((uint8_t*)(dram->mem + addr));
     if((value >> 7)) {
         uint32_t mask = ((1 << 24)) << 8;
         value |= mask;
