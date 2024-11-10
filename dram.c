@@ -45,3 +45,8 @@ DRAM32 *init_dram32() {
     dram32->x = malloc(DRAM_SIZE);
     return dram32;
 }
+
+void free_dram32(DRAM32 *dram) {
+    free(dram->x);
+    free(dram);
+}

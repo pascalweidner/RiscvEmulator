@@ -1,3 +1,5 @@
+#ifndef DRAM_H
+#define DRAM_H
 #include "includes.h"
 
 #define DRAM_SIZE = 1024 * 1024 * 1;
@@ -11,3 +13,7 @@ uint32_t dram32_load(DRAM32 *dram, uint32_t addr, uint32_t size);
 void dram32_store(DRAM32 *dram, uint32_t addr, uint32_t size, uint32_t value);
 
 DRAM32 *init_dram32();
+
+void free_dram32(DRAM32 *dram);
+
+#endif
