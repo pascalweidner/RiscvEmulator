@@ -7,6 +7,7 @@
 // TODO: add union to create a VM32 and VM64
 typedef struct VM32 {
     vCPU32 *cpu;
+    DRAM32 *dram;
 } VM32;
 
 VM32 *init_vm32(); 

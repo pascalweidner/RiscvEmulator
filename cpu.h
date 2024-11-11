@@ -1,6 +1,8 @@
 #ifndef CPU_H
 #define CPU_H
 #include "includes.h"
+#include "bus.h"
+#include "dram.h"
 
 typedef struct vCPU32 {
     uint32_t x[32];
@@ -14,6 +16,6 @@ void cpu32_fetch(vCPU32 *cpu, uint32_t inst);
 
 int cpu32_execute(vCPU32 * cpu)
 
-vCPU32 *init_vCPU32();
+vCPU32 *init_vCPU32(DRAM32 *dram);
 
 #endif
