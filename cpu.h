@@ -12,10 +12,6 @@ typedef struct vCPU32 {
 
 void cpu32_run(vCPU32 *cpu);
 
-void cpu32_fetch(vCPU32 *cpu, uint32_t inst);
-
-int cpu32_execute(vCPU32 * cpu)
-
 vCPU32 *init_vCPU32(DRAM32 *dram);
 
 #endif
