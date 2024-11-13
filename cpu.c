@@ -21,44 +21,47 @@ void cpu32_run(vCPU32 *cpu) {
 
 }
 
-static void rtype(uint32_t inst);
-static void stype(uint32_t inst);
-static void btype(uint32_t inst);
-static void utype(uint32_t inst);
-static void itype(uint32_t inst);
-static void itype2(uint32_t inst);
-static void itype3(uint32_t inst);
-static void jtype(uint32_t inst);
+static void rtype(uint32_t inst, uint8_t rd);
+static void stype(uint32_t inst, uint8_t rd);
+static void btype(uint32_t inst, uint8_t rd);
+static void utype(uint32_t inst, uint8_t rd);
+static void itype(uint32_t inst, uint8_t rd);
+static void itype2(uint32_t inst, uint8_t rd);
+static void itype3(uint32_t inst, uint8_t rd);
+static void jtype(uint32_t inst, uint8_t rd);
 
 static int cpu32_execute(vCPU32 *cpu) {
     uint32_t inst = bus32_load_dram(&cpu->bus, cpu->pc, 32);
 
     uint8_t op = inst & 0b01111111;
+    inst >>= 7;
+    uint8_t rd = inst & 0b00011111;
+    inst >>= 5;
     switch (op)
     {
         case RTYPE: 
-            rtype(inst);
+            rtype(inst, rd);
             break;
         case STYPE:
-            stype(inst);
+            stype(inst, rd);
             break;
         case BTYPE:
-            btype(inst);
+            btype(inst, rd);
             break;
         case UTYPE:
-            utype(inst);
+            utype(inst, rd);
             break;
         case ITYPE:
-            itype(inst);
+            itype(inst, rd);
             break;
         case ITYPE2:
-            itype2(inst);
+            itype2(inst, rd);
             break;
         case ITYPE3:
-            itype3(inst);
+            itype3(inst, rd);
             break;
         case JTYPE:
-            jtype(inst);
+            jtype(inst, rd);
             break;
         default:
             return -1;
@@ -66,7 +69,8 @@ static int cpu32_execute(vCPU32 *cpu) {
     }
 }
 
-void rtype(uint32_t inst)
+void rtype(uint32_t inst, uint8_t rd)
 {
-
+    uint8_t funct3 = inst & 0b00000111;
+    inst >>= 3;
 }
