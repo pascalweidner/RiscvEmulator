@@ -10,17 +10,33 @@
 #define UTYPE 0b0010111
 #define UTYPE2 0b0110111
 #define BTYPE 0b1100011
+#define EBREAK 0b1110011
  
 vCPU32 *init_vCPU32(DRAM32 *dram) {
     vCPU32 *cpu = (vCPU32*)malloc(sizeof(vCPU32));
     cpu->pc = DRAM32_BASE;
     cpu->x[0] = 0;
+    cpu->x[2] = DRAM32_BASE + DRAM_SIZE;
     init_bus32(&(cpu->bus), dram);
     return cpu;
 }
 
-void cpu32_run(vCPU32 *cpu) {
+static int cpu32_execute(vCPU32 *cpu);
 
+void cpu32_run(vCPU32 *cpu) {
+    int c = 0;
+
+    while(c <= 100) {
+        int t = cpu32_execute(cpu);
+        cpu->x[0] = 0;
+        printf("a0: %d\n", cpu->x[10]);
+        printf("t0: %d\n", cpu->x[5]);
+        printf("t1: %d\n", cpu->x[6]);
+        printf("t2: %d\n", cpu->x[7]);
+        printf("t3: %d\n", cpu->x[28]);
+        printf("t4: %d\n", cpu->x[29]);
+        c++;
+    }
 }
 
 static void rtype(vCPU32* cpu, uint32_t inst, uint8_t rd);
@@ -34,7 +50,10 @@ static void itype3(vCPU32 *cpu, uint32_t inst, uint8_t rd);
 static void jtype(vCPU32 *cpu, uint32_t inst, uint8_t rd);
 
 static int cpu32_execute(vCPU32 *cpu) {
+    printf("test\n");
     uint32_t inst = bus32_load_dram(&cpu->bus, cpu->pc, 32);
+
+    printf("%d\n", inst);
 
     uint8_t op = inst & 0b01111111;
     inst >>= 7;
@@ -69,10 +88,14 @@ static int cpu32_execute(vCPU32 *cpu) {
         case JTYPE:
             jtype(cpu, inst, rd);
             break;
+        case EBREAK:
+            exit(0);
+            break;
         default:
-            return -1;
+            exit(-1);
             break;
     }
+
 
     return 0;
 }
@@ -133,6 +156,8 @@ void rtype(vCPU32* cpu, uint32_t inst, uint8_t rd)
             break;
     }
 
+    cpu->pc += 4;
+
 }
 
 #define SB_INST 0b000
@@ -165,6 +190,8 @@ behavior dependent on the EEI.)*/
             bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 32, rs2);
             break;
     }
+
+    cpu->pc += 4;
 }
 
 #define BEQ_INST 0b000
@@ -183,31 +210,43 @@ void btype(vCPU32* cpu, uint32_t inst, uint8_t imm1)
     uint8_t rs2 = inst & 0b11111;
     inst >>= 5;
 
-    uint8_t imm12 = (inst >> 6) & 0x1;
+    int32_t imm12 = (inst >> 6);
+    if(imm12 == 1) imm12 = -1;
+    printf("test: %d\n", imm12);
     uint8_t imm10_5 = inst & 0x3F;
     uint16_t imm11 = (imm1 & 0x1) << 11;
     uint8_t imm4_1 = (imm1 >> 1) & 0xF;
 
+    printf("reg: %d %d\n", rs1, rs2);
+
+    // FEA2 C2E3
     int32_t imm = (imm12 << 12) | imm11 | (imm10_5 << 5) | (imm4_1 << 1);
+    printf("%d\n", imm);
 
     switch(funct3) {
         case BEQ_INST:
-            if(rs1 == rs2) cpu->pc = imm;
+            if(cpu->x[rs1] == cpu->x[rs2]) cpu->pc += imm;
+            cpu->pc += 4;
             break;
         case BNE_INST:
-            if(rs1 != rs2) cpu->pc = imm;
+            if(cpu->x[rs1] != cpu->x[rs2]) cpu->pc += imm;
+            else cpu->pc += 4;
             break;
         case BLT_INST:
-            if((int32_t)(rs1) < (int32_t)(rs2)) cpu->pc = imm;
+            if((int32_t)(cpu->x[rs1]) < (int32_t)(cpu->x[rs2])) cpu->pc += imm;
+            else cpu->pc += 4;
             break;
         case BGE_INST:
-            if((int32_t)(rs1) >= (int32_t)(rs2)) cpu->pc = imm;
+            if((int32_t)(cpu->x[rs1]) >= (int32_t)(cpu->x[rs2])) cpu->pc += imm;
+            cpu->pc += 4;
             break;
         case BLTU_INST:
-            if(rs1 < rs2) cpu->pc = imm;
+            if(cpu->x[rs1] < cpu->x[rs2]) cpu->pc += imm;
+            cpu->pc += 4;
             break;
         case BGEU_INST:
-            if(rs1 >= rs2) cpu->pc = imm;
+            if(rs1 >= rs2) cpu->pc += imm;
+            cpu->pc += 4;
             break;
     }
 }
@@ -216,11 +255,14 @@ void utype(vCPU32 *cpu, uint32_t inst, uint8_t rd)
 {
     //TODO: implement auipc
     fprintf(stderr, "not implemented");
+    exit(-1);
 }
 
 void utype2(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint32_t imm = inst << 12;
     cpu->x[rd] = imm;
+
+    cpu->pc += 4;
 }
 
 #define LB_INST 0b000
@@ -253,6 +295,8 @@ void itype(vCPU32 *cpu, uint32_t inst, uint8_t rd)
             cpu->x[rd] = bus32_loadU_dram(&(cpu->bus), rs1 + inst, 16);
             break;
     }
+
+    cpu->pc += 4;
 }
 
 #define ADDI_INST 0b000
@@ -313,6 +357,8 @@ void itype2(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
             cpu->x[rd] = cpu->x[rs1] & inst;
             break;
     }
+
+    cpu->pc += 4;
 }
 
 void itype3(vCPU32* cpu, uint32_t inst, uint8_t rd) {
@@ -334,9 +380,10 @@ void jtype(vCPU32* cpu, uint32_t inst, uint8_t rd) {
     inst >>= 1;
     uint16_t imm10_1 = inst & 0b1111111111;
     inst >>= 1;
-    uint8_t imm20 = inst & 0x1;
+    int8_t imm20 = inst & 0x1;
+    if (imm20 == 1) imm20 = -1;
 
-    uint32_t imm = (imm10_1 << 1) | (imm11 << 11) | (imm19_12 << 12) | (imm20 << 20);
+    int32_t imm = (imm10_1 << 1) | (imm11 << 11) | (imm19_12 << 12) | (imm20 << 20);
     cpu->x[rd] = cpu->pc + 4;
-    cpu->pc += (imm << 2);
+    cpu->pc += (imm);
 }

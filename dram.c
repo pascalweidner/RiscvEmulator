@@ -31,7 +31,7 @@ uint32_t dram32_loadU(DRAM32 *dram, uint32_t addr, uint32_t size) {
 static uint32_t dram32_load_byte(DRAM32 *dram, uint32_t addr) {
     uint32_t value = *((uint8_t*)(dram->mem + addr));
     if((value >> 7)) {
-        uint32_t mask = ((1 << 24)) << 8;
+        uint32_t mask = ((1 << 24) - 1) << 8;
         value |= mask;
     }
 
@@ -53,8 +53,8 @@ static uint32_t dram32_load_word(DRAM32 *dram, uint32_t addr) {
     return value;
 } 
 
-static void dram32_store_byte(DRAM32 *dram, uint32_t addr, uint32_t value);
-static void dram32_store_halfWord(DRAM32 *dram, uint32_t addr, uint32_t value);
+static void dram32_store_byte(DRAM32 *dram, uint32_t addr, uint8_t value);
+static void dram32_store_halfWord(DRAM32 *dram, uint32_t addr, uint16_t value);
 static void dram32_store_word(DRAM32 *dram, uint32_t addr, uint32_t value);
 
 void dram32_store(DRAM32 *dram, uint32_t addr, uint32_t size, uint32_t value) {
@@ -65,6 +65,18 @@ void dram32_store(DRAM32 *dram, uint32_t addr, uint32_t size, uint32_t value) {
         case 16: return dram32_store_halfWord(dram, addrMapped, value); break;
         case 32: return dram32_store_word(dram, addrMapped, value); break;
     }
+}
+
+static void dram32_store_byte(DRAM32 *dram, uint32_t addr, uint8_t value) {
+    *((uint8_t *)(dram->mem + addr)) = value;
+}
+
+static void dram32_store_halfWord(DRAM32 *dram, uint32_t addr, uint16_t value) {
+    *((uint16_t *)(dram->mem + addr)) = value;
+}
+
+static void dram32_store_word(DRAM32* dram, uint32_t addr, uint32_t value) {
+    *((uint32_t *)(dram->mem + addr)) = value;
 }
 
 DRAM32 *init_dram32() {
