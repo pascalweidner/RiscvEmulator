@@ -23,6 +23,13 @@ vCPU32 *init_vCPU32(DRAM32 *dram) {
 
 static int cpu32_execute(vCPU32 *cpu);
 
+void register_dump(vCPU32 *cpu) {
+    for(int i = 1; i < 32; i++) {
+        printf("x%d: %d; ", i, cpu->x[i]);
+    }
+    printf("\n");
+}
+
 void cpu32_run(vCPU32 *cpu) {
     int c = 0;
 
