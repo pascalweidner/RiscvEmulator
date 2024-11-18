@@ -23,9 +23,11 @@ vCPU32 *init_vCPU32(DRAM32 *dram) {
 
 static int cpu32_execute(vCPU32 *cpu);
 
+static const char* register_names[] = {"zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0/fp", "s1", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
+
 void register_dump(vCPU32 *cpu) {
     for(int i = 1; i < 32; i++) {
-        printf("x%d: %d; ", i, cpu->x[i]);
+        printf("x%d/%s: %d; ", i, register_names[i], cpu->x[i]);
     }
     printf("\n");
 }
@@ -33,15 +35,10 @@ void register_dump(vCPU32 *cpu) {
 void cpu32_run(vCPU32 *cpu) {
     int c = 0;
 
-    while(c <= 100) {
+    while(true) {
         int t = cpu32_execute(cpu);
         cpu->x[0] = 0;
-        printf("a0: %d\n", cpu->x[10]);
-        printf("t0: %d\n", cpu->x[5]);
-        printf("t1: %d\n", cpu->x[6]);
-        printf("t2: %d\n", cpu->x[7]);
-        printf("t3: %d\n", cpu->x[28]);
-        printf("t4: %d\n", cpu->x[29]);
+        register_dump(cpu);
         c++;
     }
 }
@@ -59,8 +56,6 @@ static void jtype(vCPU32 *cpu, uint32_t inst, uint8_t rd);
 static int cpu32_execute(vCPU32 *cpu) {
     printf("test\n");
     uint32_t inst = bus32_load_dram(&cpu->bus, cpu->pc, 32);
-
-    printf("%d\n", inst);
 
     uint8_t op = inst & 0b01111111;
     inst >>= 7;
