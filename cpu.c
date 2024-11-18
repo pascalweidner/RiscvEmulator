@@ -389,3 +389,49 @@ void jtype(vCPU32* cpu, uint32_t inst, uint8_t rd) {
     cpu->x[rd] = cpu->pc + 4;
     cpu->pc += (imm);
 }
+
+#define MUL_INST 0b000
+#define MUL_H_INST 0b001
+#define MULHSU_INST 0b010
+#define MULHU_INST 0b011
+#define DIV_INST 0b100
+#define DIVU_INST 0b101
+#define REM_INST 0b110
+#define REMU_INST 0b111
+
+void mulType(vCPU32 *cpu, uint32_t inst, uint32_t rd) {
+    uint8_t funct3 = inst & 0b111;
+    inst >>= 3;
+    uint8_t rs1 = inst & 0b11111;
+    inst >>= 5;
+    uint8_t rs2 = inst & 0b11111;
+    
+    switch(funct3) {
+        case MUL_INST:
+            cpu->x[rd] = (int32_t)(cpu->x[rs1]) * (int32_t)(cpu->x[rs2]);
+            break;
+        case MUL_H_INST:
+            //TODO implement mulh
+            break;
+        case MULHSU_INST:
+            //TODO implement mulh signed unsigned
+            break;
+        case MULHU_INST:
+            //TODO implement mulh unsigned
+            break;
+        case DIV_INST:
+            //TODO implement div
+            break;
+        case DIVU_INST:
+            //TODO implement div unsigned
+            break;
+        case REM_INST:
+            //TODO implement rem
+            break;
+        case REMU_INST:
+            //TODO implement remu
+            break;
+        default:
+            break;
+    }
+}
