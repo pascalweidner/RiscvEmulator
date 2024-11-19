@@ -408,28 +408,28 @@ void mulType(vCPU32 *cpu, uint32_t inst, uint32_t rd) {
     
     switch(funct3) {
         case MUL_INST:
-            cpu->x[rd] = (int32_t)(cpu->x[rs1]) * (int32_t)(cpu->x[rs2]);
+            cpu->x[rd] = ((int32_t)(cpu->x[rs1]) * (int32_t)(cpu->x[rs2])) & 0xFFFFFFFF;
             break;
         case MUL_H_INST:
-            //TODO implement mulh
+            cpu->x[rd] = (int64_t)((int32_t)(cpu->x[rs1]) * (int32_t)(cpu->x[rs2])) >> 32;
             break;
         case MULHSU_INST:
-            //TODO implement mulh signed unsigned
+            cpu->x[rd] = (int64_t)((int32_t)(cpu->x[rs1]) * (uint32_t)(cpu->x[rs2])) >> 32;
             break;
         case MULHU_INST:
-            //TODO implement mulh unsigned
+            cpu->x[rd] = (uint64_t)((uint32_t)(cpu->x[rs1]) * (uint32_t)(cpu->x[rs2])) >> 32;
             break;
         case DIV_INST:
-            //TODO implement div
+            cpu->x[rd] = (int32_t)(cpu->x[rs1]) / (int32_t)(cpu->x[rs2]);
             break;
         case DIVU_INST:
-            //TODO implement div unsigned
+            cpu->x[rd] = cpu->x[rs1] / cpu->x[rs2];
             break;
         case REM_INST:
-            //TODO implement rem
+            cpu->x[rd] = (int32_t)(cpu->x[rs1]) % (int32_t)(cpu->x[rs2]);
             break;
         case REMU_INST:
-            //TODO implement remu
+            cpu->x[rd] = cpu->x[rs1] % cpu->x[rs2];
             break;
         default:
             break;
