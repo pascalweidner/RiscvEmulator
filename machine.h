@@ -10,6 +10,12 @@ typedef struct VM32 {
     DRAM32 *dram;
 } VM32;
 
+/*
+    @param specs: String of the format RV<bits>I<extensions> (i.e.: "RV32I")
+    @brief creates a virtual machine based on the definition given by the specs string
+*/
+VM32 *create_vm(char *specs);
+
 VM32 *init_vm32(); 
 
 
