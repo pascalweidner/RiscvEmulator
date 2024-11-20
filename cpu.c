@@ -177,6 +177,8 @@ void stype(vCPU32 *cpu, uint32_t inst, uint8_t imm1)
 
     uint16_t imm = imm1 | (inst << 5);
 
+    printf("register: %d\n", rs1);
+
     /*TODO: check for misalignment (Regardless of EEI, loads and stores whose effective addresses are naturally aligned shall not raise an
 address-misaligned exception. Loads and stores whose effective address is not naturally aligned to the
 referenced datatype (i.e., the effective address is not divisible by the size of the access in bytes) have
@@ -282,19 +284,19 @@ void itype(vCPU32 *cpu, uint32_t inst, uint8_t rd)
 
     switch(funct3) {
         case LB_INST:
-            cpu->x[rd] = bus32_load_dram(&(cpu->bus), rs1 + inst, 8);
+            cpu->x[rd] = bus32_load_dram(&(cpu->bus), cpu->x[rs1] + inst, 8);
             break;
         case LH_INST:
-            cpu->x[rd] = bus32_load_dram(&(cpu->bus), rs1 + inst, 16);
+            cpu->x[rd] = bus32_load_dram(&(cpu->bus), cpu->x[rs1] + inst, 16);
             break;
         case LW_INST:
-            cpu->x[rd] = bus32_load_dram(&(cpu->bus), rs1 + inst, 32);
+            cpu->x[rd] = bus32_load_dram(&(cpu->bus), cpu->x[rs1] + inst, 32);
             break;
         case LBU_INST:
-            cpu->x[rd] = bus32_loadU_dram(&(cpu->bus), rs1 + inst, 8);
+            cpu->x[rd] = bus32_loadU_dram(&(cpu->bus), cpu->x[rs1] + inst, 8);
             break;
         case LHU_INST:
-            cpu->x[rd] = bus32_loadU_dram(&(cpu->bus), rs1 + inst, 16);
+            cpu->x[rd] = bus32_loadU_dram(&(cpu->bus), cpu->x[rs1] + inst, 16);
             break;
     }
 

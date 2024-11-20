@@ -34,7 +34,7 @@ int main() {
     DRAM32 *dram = init_dram32();
     vCPU32 *cpu = init_vCPU32(dram);
 
-    read_file(dram, "trib20.out");
+    read_file(dram, "tribRec8.out");
 
     cpu32_run(cpu);
 
