@@ -185,13 +185,13 @@ referenced datatype (i.e., the effective address is not divisible by the size of
 behavior dependent on the EEI.)*/
     switch(funct3) {
         case SB_INST:
-            bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 8, rs2);
+            bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 8, cpu->x[rs2]);
             break;
         case SH_INST:
-            bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 16, rs2);
+            bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 16, cpu->x[rs2]);
             break;
         case SW_INST:
-            bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 32, rs2);
+            bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 32, cpu->x[rs2]);
             break;
     }
 
