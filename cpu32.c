@@ -1,23 +1,15 @@
-#include "cpu.h"
+#include "cpu32.h"
+#include "rv32i.h"
 
-// R-type Instructions
-#define RTYPE 0b0110011
-#define STYPE 0b0100011
-#define ITYPE 0b0000011
-#define ITYPE2 0b0010011
-#define ITYPE3 0b1100111
-#define JTYPE 0b1101111
-#define UTYPE 0b0010111
-#define UTYPE2 0b0110111
-#define BTYPE 0b1100011
-#define EBREAK 0b1110011
- 
-vCPU32 *init_vCPU32(DRAM32 *dram) {
+
+vCPU32 *init_vCPU32(DRAM32 *dram, InstructionHandler *table, RTypeInstructionHandler *rtypeTable) {
     vCPU32 *cpu = (vCPU32*)malloc(sizeof(vCPU32));
     cpu->pc = DRAM32_BASE;
     cpu->x[0] = 0;
     cpu->x[2] = DRAM32_BASE + DRAM_SIZE;
     init_bus32(&(cpu->bus), dram);
+    cpu->table = table;
+    cpu->rtypeTabl = rtypeTable;
     return cpu;
 }
 
@@ -25,7 +17,7 @@ static int cpu32_execute(vCPU32 *cpu);
 
 static const char* register_names[] = {"zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0/fp", "s1", "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
 
-void register_dump(vCPU32 *cpu) {
+static void register_dump(vCPU32 *cpu) {
     for(int i = 1; i < 32; i++) {
         printf("x%d/%s: %d; ", i, register_names[i], cpu->x[i]);
     }
@@ -43,16 +35,6 @@ void cpu32_run(vCPU32 *cpu) {
     }
 }
 
-static void rtype(vCPU32* cpu, uint32_t inst, uint8_t rd);
-static void stype(vCPU32* cpu, uint32_t inst, uint8_t imm1);
-static void btype(vCPU32* cpu, uint32_t inst, uint8_t imm1);
-static void utype(vCPU32* cpu, uint32_t inst, uint8_t rd);
-static void utype2(vCPU32 * cpu, uint32_t inst, uint8_t rd);
-static void itype(vCPU32 *cpu, uint32_t inst, uint8_t rd);
-static void itype2(vCPU32 *cpu, uint32_t inst, uint8_t rd);
-static void itype3(vCPU32 *cpu, uint32_t inst, uint8_t rd);
-static void jtype(vCPU32 *cpu, uint32_t inst, uint8_t rd);
-
 static int cpu32_execute(vCPU32 *cpu) {
     printf("test\n");
     uint32_t inst = bus32_load_dram(&cpu->bus, cpu->pc, 32);
@@ -61,57 +43,11 @@ static int cpu32_execute(vCPU32 *cpu) {
     inst >>= 7;
     uint8_t rd = inst & 0b00011111;
     inst >>= 5;
-    switch (op)
-    {
-        case ITYPE:
-            itype(cpu, inst, rd);
-            break;
-        case ITYPE2:
-            itype2(cpu, inst, rd);
-            break;
-        case UTYPE:
-            utype(cpu, inst, rd);
-            break;
-        case STYPE:
-            stype(cpu, inst, rd);
-            break;
-        case RTYPE: 
-            rtype(cpu, inst, rd);
-            break;
-        case UTYPE2:
-            utype2(cpu, inst, rd);
-            break;
-        case BTYPE:
-            btype(cpu, inst, rd);
-            break;
-        case ITYPE3:
-            itype3(cpu, inst, rd);
-            break;
-        case JTYPE:
-            jtype(cpu, inst, rd);
-            break;
-        case EBREAK:
-            exit(0);
-            break;
-        default:
-            exit(-1);
-            break;
-    }
 
+    cpu->table[op](cpu, inst, rd);
 
     return 0;
 }
-
-#define ADD_INST 0
-#define SUB_INST 0b0000100000
-#define SLL_INST 0b0010000000
-#define SLT_INST 0b0100000000
-#define SLTU_INST 0b0110000000
-#define XOR_INST 0b1000000000
-#define SRL_INST 0b1010000000
-#define SRA_INST 0b1010100000
-#define OR_INST 0b1100000000
-#define AND_INST 0b1110000000
 
 void rtype(vCPU32* cpu, uint32_t inst, uint8_t rd)
 {
@@ -123,43 +59,9 @@ void rtype(vCPU32* cpu, uint32_t inst, uint8_t rd)
     inst >>= 5;
     funct = (funct << 7) | inst;
 
-    switch(funct) {
-        case ADD_INST:
-            cpu->x[rd] = (int32_t)(cpu->x[rs1]) + (int32_t)(cpu->x[rs2]);
-            break;
-        case SUB_INST:
-            cpu->x[rd] = (int32_t)(cpu->x[rs1]) - (int32_t)(cpu->x[rs2]);
-            break;
-        case SLL_INST:
-            cpu->x[rd] = cpu->x[rs1] << (cpu->x[rs2] & 0b1111);
-            break;
-        case SLT_INST:
-            cpu->x[rd] = (int32_t)(cpu->x[rs1]) < (int32_t)(cpu->x[rs2]);
-            break;
-        case SLTU_INST:
-            cpu->x[rd] = (uint32_t)(cpu->x[rs1]) < (uint32_t)(cpu->x[rs2]);
-            break;
-        case XOR_INST:
-            cpu->x[rd] = cpu->x[rs1] ^ cpu->x[rs2];
-            break;
-        case SRL_INST:
-            cpu->x[rd] = cpu->x[rs1] >> (cpu->x[rs2] & 0b1111);
-            break;
-        case SRA_INST:
-            cpu->x[rd] = (int32_t)(cpu->x[rs1]) >> (cpu->x[rs2] & 0b1111);
-            break;
-        case OR_INST:
-            cpu->x[rd] = cpu->x[rs1] | cpu->x[rs2];
-            break;
-        case AND_INST:
-            cpu->x[rd] = cpu->x[rs1] & cpu->x[rs2];
-            break;
-        default:
-            break;
-    }
+    ((cpu->rtypeTable)[funct])(cpu, rd, rs1, rs2);
 
     cpu->pc += 4;
-
 }
 
 #define SB_INST 0b000
@@ -390,50 +292,4 @@ void jtype(vCPU32* cpu, uint32_t inst, uint8_t rd) {
     int32_t imm = (imm10_1 << 1) | (imm11 << 11) | (imm19_12 << 12) | (imm20 << 20);
     cpu->x[rd] = cpu->pc + 4;
     cpu->pc += (imm);
-}
-
-#define MUL_INST 0b000
-#define MUL_H_INST 0b001
-#define MULHSU_INST 0b010
-#define MULHU_INST 0b011
-#define DIV_INST 0b100
-#define DIVU_INST 0b101
-#define REM_INST 0b110
-#define REMU_INST 0b111
-
-void mulType(vCPU32 *cpu, uint32_t inst, uint32_t rd) {
-    uint8_t funct3 = inst & 0b111;
-    inst >>= 3;
-    uint8_t rs1 = inst & 0b11111;
-    inst >>= 5;
-    uint8_t rs2 = inst & 0b11111;
-    
-    switch(funct3) {
-        case MUL_INST:
-            cpu->x[rd] = ((int32_t)(cpu->x[rs1]) * (int32_t)(cpu->x[rs2])) & 0xFFFFFFFF;
-            break;
-        case MUL_H_INST:
-            cpu->x[rd] = (int64_t)((int32_t)(cpu->x[rs1]) * (int32_t)(cpu->x[rs2])) >> 32;
-            break;
-        case MULHSU_INST:
-            cpu->x[rd] = (int64_t)((int32_t)(cpu->x[rs1]) * (uint32_t)(cpu->x[rs2])) >> 32;
-            break;
-        case MULHU_INST:
-            cpu->x[rd] = (uint64_t)((uint32_t)(cpu->x[rs1]) * (uint32_t)(cpu->x[rs2])) >> 32;
-            break;
-        case DIV_INST:
-            cpu->x[rd] = (int32_t)(cpu->x[rs1]) / (int32_t)(cpu->x[rs2]);
-            break;
-        case DIVU_INST:
-            cpu->x[rd] = cpu->x[rs1] / cpu->x[rs2];
-            break;
-        case REM_INST:
-            cpu->x[rd] = (int32_t)(cpu->x[rs1]) % (int32_t)(cpu->x[rs2]);
-            break;
-        case REMU_INST:
-            cpu->x[rd] = cpu->x[rs1] % cpu->x[rs2];
-            break;
-        default:
-            break;
-    }
 }

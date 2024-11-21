@@ -1,13 +1,11 @@
 #include "includes.h"
-#include "cpu.h"
+#include "rv32i.h"
 #include "dram.h"
 
 
 void read_file(DRAM32* dram, char *filename)
 {
     FILE *file;
-    uint32_t *buffer;
-    unsigned long fileLen;
 
     //Open file
     file = fopen(filename, "rb");
