@@ -1,11 +1,13 @@
 #include "machine.h"
 #include "rv32i.h"
 #include "rv32m.h"
+#include "includes.h"
+#include <ctype.h>
 
 static VM32 *init_vm32() {
     VM32 *vm = (VM32*)malloc(sizeof(VM32));
     vm->dram = init_dram32();
-    vm->cpu = init_vCPU32(vm->dram, &(vm->table), &(vm->rtypeTable));
+    vm->cpu = init_vCPU32(vm->dram, vm->table, vm->rtypeTable);
 }
 
 static void register_handler(InstructionHandler *table, uint8_t opcode, InstructionHandler handler) {
@@ -53,24 +55,33 @@ static void register_rv32m_instructions(RTypeInstructionHandler *rtypeTable) {
 
 }
 
-static void string_toLower(char *str) {
-    for( ; *str; ++str) *str = tolower(*str);
+void toLowercase(char *str) {
+    str = "test";
+    if (str == NULL) return; // Check for null pointer
+    int i = 0;
+    while (str[i] != '\0') {
+        str[i] = (char)toupper(str[i]);
+        printf("%c\n", *str);
+
+        i++;
+    }
+    printf("end\n");
 }
 
 VM32 *create_vm(char *specs) {
-    string_toLower(specs);
     if(strncmp(specs, "rv32i", 5) != 0) exit(-1);
 
     VM32 *vm = init_vm32();
-    memset(&(vm->table), 0, sizeof(vm->table));
+    printf("size: %d\n", sizeof(vm->table));
+    memset(vm->table, 0, sizeof(vm->table));
 
-    register_rv32i_instructions(&(vm->table), &(vm->rtypeTable));
+    register_rv32i_instructions(vm->table, vm->rtypeTable);
 
     int i = 5;
     while(specs[i] != '\0') {
         switch(specs[i]) {
             case 'm':
-                register_rv32m_instructions(&(vm->table));
+                register_rv32m_instructions(vm->rtypeTable);
                 break;
             default:
                 fprintf(stderr, "this extension (%c) is not supported!", specs[i]);

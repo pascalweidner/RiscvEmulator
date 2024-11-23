@@ -30,14 +30,17 @@ void read_file(DRAM32* dram, char *filename)
 }
 
 int main() {
-    DRAM32 *dram = init_dram32();
-    VM32 *vm = create_vm("rv32i");
+    printf("test\n");
+    VM32 *vm = create_vm("rv32i\0");
+    printf("test2\n");
 
-    read_file(dram, "tribRec8.out");
+    read_file(vm->dram, "../trib5.out");
+
+    printf("test3\n");
 
     cpu32_run(vm->cpu);
 
-    free_dram32(dram);
     free(vm->cpu);
+    free(vm->dram);
     free(vm);
 }
