@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "rv32i.h"
 #include "dram.h"
+#include "machine.h"
 
 
 void read_file(DRAM32* dram, char *filename)
@@ -30,12 +31,13 @@ void read_file(DRAM32* dram, char *filename)
 
 int main() {
     DRAM32 *dram = init_dram32();
-    vCPU32 *cpu = init_vCPU32(dram);
+    VM32 *vm = create_vm("rv32i");
 
     read_file(dram, "tribRec8.out");
 
-    cpu32_run(cpu);
+    cpu32_run(vm->cpu);
 
     free_dram32(dram);
-    free(cpu);
+    free(vm->cpu);
+    free(vm);
 }

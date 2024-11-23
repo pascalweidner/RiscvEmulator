@@ -64,7 +64,7 @@ VM32 *create_vm(char *specs) {
     VM32 *vm = init_vm32();
     memset(&(vm->table), 0, sizeof(vm->table));
 
-    register_rv32i_instructions(&(vm->table));
+    register_rv32i_instructions(&(vm->table), &(vm->rtypeTable));
 
     int i = 5;
     while(specs[i] != '\0') {

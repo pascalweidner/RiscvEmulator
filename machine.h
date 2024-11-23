@@ -2,10 +2,7 @@
 #define MACHINE_H
 #include "includes.h"
 #include "bus.h"
-
-typedef void (*InstructionHandler)(vCPU32 *cpu, uint32_t instruction, uint8_t rd);
-
-typedef void (*RTypeInstructionHandler)(vCPU32 *cpu, uint8_t rd, uint8_t rs1, uint8_t rs2);
+#include "cpu32.h"
 
 // TODO: add union to create a VM32 and VM64
 typedef struct VM32 {

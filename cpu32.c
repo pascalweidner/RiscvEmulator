@@ -9,7 +9,7 @@ vCPU32 *init_vCPU32(DRAM32 *dram, InstructionHandler *table, RTypeInstructionHan
     cpu->x[2] = DRAM32_BASE + DRAM_SIZE;
     init_bus32(&(cpu->bus), dram);
     cpu->table = table;
-    cpu->rtypeTabl = rtypeTable;
+    cpu->rtypeTable = rtypeTable;
     return cpu;
 }
 
@@ -292,4 +292,8 @@ void jtype(vCPU32* cpu, uint32_t inst, uint8_t rd) {
     int32_t imm = (imm10_1 << 1) | (imm11 << 11) | (imm19_12 << 12) | (imm20 << 20);
     cpu->x[rd] = cpu->pc + 4;
     cpu->pc += (imm);
+}
+
+void ebreak(vCPU32* cpu, uint32_t inst, uint8_t rd) {
+    exit(0);
 }

@@ -2,15 +2,20 @@
 #define CPU32_H_
 #include "bus.h"
 #include "dram.h"
-#include "machine.h"
 
-typedef struct vCPU32 {
+typedef struct vCPU32 vCPU32;
+
+typedef void (*InstructionHandler)(vCPU32 *cpu, uint32_t instruction, uint8_t rd);
+
+typedef void (*RTypeInstructionHandler)(vCPU32 *cpu, uint8_t rd, uint8_t rs1, uint8_t rs2);
+
+struct vCPU32 {
     uint32_t x[32];
     uint32_t pc;
     BUS32 bus;
     InstructionHandler *table;
     RTypeInstructionHandler *rtypeTable;
-} vCPU32;
+};
 
 void cpu32_run(vCPU32 *cpu);
 
