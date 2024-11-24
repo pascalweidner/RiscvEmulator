@@ -1,0 +1,44 @@
+[
+{
+  "directory": "/mnt/d/Development/Projects/RiscVEmulator/build",
+  "command": "/usr/bin/gcc -g -o CMakeFiles/riscvemulator.dir/main.c.o -c /mnt/d/Development/Projects/RiscVEmulator/main.c",
+  "file": "/mnt/d/Development/Projects/RiscVEmulator/main.c",
+  "output": "CMakeFiles/riscvemulator.dir/main.c.o"
+},
+{
+  "directory": "/mnt/d/Development/Projects/RiscVEmulator/build",
+  "command": "/usr/bin/gcc -g -o CMakeFiles/riscvemulator.dir/bus.c.o -c /mnt/d/Development/Projects/RiscVEmulator/bus.c",
+  "file": "/mnt/d/Development/Projects/RiscVEmulator/bus.c",
+  "output": "CMakeFiles/riscvemulator.dir/bus.c.o"
+},
+{
+  "directory": "/mnt/d/Development/Projects/RiscVEmulator/build",
+  "command": "/usr/bin/gcc -g -o CMakeFiles/riscvemulator.dir/cpu32.c.o -c /mnt/d/Development/Projects/RiscVEmulator/cpu32.c",
+  "file": "/mnt/d/Development/Projects/RiscVEmulator/cpu32.c",
+  "output": "CMakeFiles/riscvemulator.dir/cpu32.c.o"
+},
+{
+  "directory": "/mnt/d/Development/Projects/RiscVEmulator/build",
+  "command": "/usr/bin/gcc -g -o CMakeFiles/riscvemulator.dir/dram.c.o -c /mnt/d/Development/Projects/RiscVEmulator/dram.c",
+  "file": "/mnt/d/Development/Projects/RiscVEmulator/dram.c",
+  "output": "CMakeFiles/riscvemulator.dir/dram.c.o"
+},
+{
+  "directory": "/mnt/d/Development/Projects/RiscVEmulator/build",
+  "command": "/usr/bin/gcc -g -o CMakeFiles/riscvemulator.dir/machine.c.o -c /mnt/d/Development/Projects/RiscVEmulator/machine.c",
+  "file": "/mnt/d/Development/Projects/RiscVEmulator/machine.c",
+  "output": "CMakeFiles/riscvemulator.dir/machine.c.o"
+},
+{
+  "directory": "/mnt/d/Development/Projects/RiscVEmulator/build",
+  "command": "/usr/bin/gcc -g -o CMakeFiles/riscvemulator.dir/rv32i.c.o -c /mnt/d/Development/Projects/RiscVEmulator/rv32i.c",
+  "file": "/mnt/d/Development/Projects/RiscVEmulator/rv32i.c",
+  "output": "CMakeFiles/riscvemulator.dir/rv32i.c.o"
+},
+{
+  "directory": "/mnt/d/Development/Projects/RiscVEmulator/build",
+  "command": "/usr/bin/gcc -g -o CMakeFiles/riscvemulator.dir/rv32m.c.o -c /mnt/d/Development/Projects/RiscVEmulator/rv32m.c",
+  "file": "/mnt/d/Development/Projects/RiscVEmulator/rv32m.c",
+  "output": "CMakeFiles/riscvemulator.dir/rv32m.c.o"
+}
+]

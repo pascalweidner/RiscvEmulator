@@ -75,6 +75,7 @@ VM32 *create_vm(char *specs) {
     printf("size: %d\n", sizeof(vm->table));
     memset(vm->table, 0, sizeof(vm->table));
 
+    //FIXME: seqmenation fault
     register_rv32i_instructions(vm->table, vm->rtypeTable);
 
     int i = 5;
