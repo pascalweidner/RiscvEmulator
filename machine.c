@@ -90,4 +90,6 @@ VM32 *create_vm(char *specs) {
         }
     }
 
+    return vm;
+
 }

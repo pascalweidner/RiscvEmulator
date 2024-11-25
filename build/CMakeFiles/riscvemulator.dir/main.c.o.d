@@ -1,7 +1,7 @@
 CMakeFiles/riscvemulator.dir/main.c.o: \
- /mnt/d/Development/Projects/RiscVEmulator/main.c \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/main.c \
  /usr/include/stdc-predef.h \
- /mnt/d/Development/Projects/RiscVEmulator/includes.h \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/includes.h \
  /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -63,8 +63,8 @@ CMakeFiles/riscvemulator.dir/main.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h /usr/include/ctype.h \
- /mnt/d/Development/Projects/RiscVEmulator/rv32i.h \
- /mnt/d/Development/Projects/RiscVEmulator/bus.h \
- /mnt/d/Development/Projects/RiscVEmulator/dram.h \
- /mnt/d/Development/Projects/RiscVEmulator/cpu32.h \
- /mnt/d/Development/Projects/RiscVEmulator/machine.h
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/rv32i.h \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/bus.h \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/dram.h \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/cpu32.h \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/machine.h

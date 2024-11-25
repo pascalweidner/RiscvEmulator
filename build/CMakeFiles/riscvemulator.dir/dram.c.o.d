@@ -1,8 +1,8 @@
 CMakeFiles/riscvemulator.dir/dram.c.o: \
- /mnt/d/Development/Projects/RiscVEmulator/dram.c \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/dram.c \
  /usr/include/stdc-predef.h \
- /mnt/d/Development/Projects/RiscVEmulator/dram.h \
- /mnt/d/Development/Projects/RiscVEmulator/includes.h \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/dram.h \
+ /mnt/c/Development/RiscvEmulator/RiscvEmulator/includes.h \
  /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \

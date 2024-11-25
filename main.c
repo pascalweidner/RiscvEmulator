@@ -8,12 +8,15 @@ void read_file(DRAM32* dram, char *filename)
 {
     FILE *file;
 
-    //Open file
-    file = fopen(filename, "rb");
+    printf("%s\n", filename);
+    file = fopen(filename, "r");
     if (!file) {
         fprintf(stderr, "Unable to open file %s", filename);
     }
 
+    printf("test4\n");
+
+/*
 
     uint32_t *pc = (uint32_t *)(dram->mem);
     uint32_t b;
@@ -25,7 +28,7 @@ void read_file(DRAM32* dram, char *filename)
            ((b << 24) & 0xFF000000);
         pc++;
     }
-
+    */
     fclose(file);
 }
 
@@ -34,7 +37,7 @@ int main() {
     VM32 *vm = create_vm("rv32i\0");
     printf("test2\n");
 
-    read_file(vm->dram, "../trib5.out");
+    read_file(vm->dram, "/mnt/c/Development/RiscvEmulator/RiscvEmulator/trib5.out");
 
     printf("test3\n");
 
