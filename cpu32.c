@@ -41,6 +41,7 @@ static int cpu32_execute(vCPU32 *cpu) {
     uint8_t rd = inst & 0b00011111;
     inst >>= 5;
 
+    printf("opcode %d\n", op);
     cpu->table[op](cpu, inst, rd);
 
     return 0;

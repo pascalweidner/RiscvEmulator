@@ -31,7 +31,7 @@ void read_file(DRAM32* dram, char *filename)
 int main() {
     VM32 *vm = create_vm("rv32im\0");
 
-    read_file(vm->dram, "/mnt/c/Development/RiscvEmulator/RiscvEmulator/trib5.out");
+    read_file(vm->dram, "/mnt/c/Development/RiscvEmulator/RiscvEmulator/mulhtest.out");
 
 
     cpu32_run(vm->cpu);

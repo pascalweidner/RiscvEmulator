@@ -3,8 +3,6 @@
 #include "includes.h"
 #include "cpu32.h"
 
-#define MULTYPE 0b0110011
-
 #define MUL_INST 0b0000000001
 #define MUL_H_INST 0b0010000001
 #define MULHSU_INST 0b0100000001

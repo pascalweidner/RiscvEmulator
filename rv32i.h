@@ -1,8 +1,6 @@
 #ifndef CPU_H
 #define CPU_H
 #include "includes.h"
-#include "bus.h"
-#include "dram.h"
 #include "cpu32.h"
 
 #define RTYPE 0b0110011
