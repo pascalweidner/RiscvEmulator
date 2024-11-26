@@ -9,7 +9,7 @@ typedef struct VM32 {
     vCPU32 *cpu;
     DRAM32 *dram;
     InstructionHandler table[255];
-    RTypeInstructionHandler rtypeTable[2047];
+    RTypeInstructionHandler rtypeTable[1024];
 } VM32;
 
 /*

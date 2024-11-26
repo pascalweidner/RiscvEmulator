@@ -5,9 +5,13 @@
 #include <ctype.h>
 
 static VM32 *init_vm32() {
-    VM32 *vm = (VM32*)malloc(sizeof(VM32));
+    VM32 *vm = (VM32*)calloc(1,sizeof(VM32));
     vm->dram = init_dram32();
     vm->cpu = init_vCPU32(vm->dram, vm->table, vm->rtypeTable);
+    memset(vm->table, 0, sizeof(vm->table));
+    memset(vm->rtypeTable, 0, sizeof(vm->rtypeTable));
+
+    return vm;
 }
 
 static void register_handler(InstructionHandler *table, uint8_t opcode, InstructionHandler handler) {
@@ -56,7 +60,6 @@ static void register_rv32m_instructions(RTypeInstructionHandler *rtypeTable) {
 }
 
 void toLowercase(char *str) {
-    str = "test";
     if (str == NULL) return; // Check for null pointer
     int i = 0;
     while (str[i] != '\0') {
@@ -71,12 +74,12 @@ void toLowercase(char *str) {
 VM32 *create_vm(char *specs) {
     if(strncmp(specs, "rv32i", 5) != 0) exit(-1);
 
-    VM32 *vm = init_vm32();
-    printf("size: %d\n", sizeof(vm->table));
-    memset(vm->table, 0, sizeof(vm->table));
 
-    //FIXME: seqmenation fault
+    VM32 *vm = init_vm32();
+
     register_rv32i_instructions(vm->table, vm->rtypeTable);
+
+    printf("test\n");
 
     int i = 5;
     while(specs[i] != '\0') {
@@ -88,6 +91,7 @@ VM32 *create_vm(char *specs) {
                 fprintf(stderr, "this extension (%c) is not supported!", specs[i]);
                 break;
         }
+        i++;
     }
 
     return vm;

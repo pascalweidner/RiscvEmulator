@@ -36,7 +36,6 @@ void cpu32_run(vCPU32 *cpu) {
 }
 
 static int cpu32_execute(vCPU32 *cpu) {
-    printf("test\n");
     uint32_t inst = bus32_load_dram(&cpu->bus, cpu->pc, 32);
 
     uint8_t op = inst & 0b01111111;
