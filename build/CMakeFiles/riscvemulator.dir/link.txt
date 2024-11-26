@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/riscvemulator.dir/main.c.o CMakeFiles/riscvemulator.dir/bus.c.o CMakeFiles/riscvemulator.dir/cpu32.c.o CMakeFiles/riscvemulator.dir/dram.c.o CMakeFiles/riscvemulator.dir/machine.c.o CMakeFiles/riscvemulator.dir/rv32i.c.o CMakeFiles/riscvemulator.dir/rv32m.c.o -o riscvemulator 

@@ -1,3 +1,0 @@
-/mnt/c/Development/RiscvEmulator/RiscvEmulator/build/CMakeFiles/riscvemulator.dir
-/mnt/c/Development/RiscvEmulator/RiscvEmulator/build/CMakeFiles/edit_cache.dir
-/mnt/c/Development/RiscvEmulator/RiscvEmulator/build/CMakeFiles/rebuild_cache.dir
