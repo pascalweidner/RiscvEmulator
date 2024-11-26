@@ -1,7 +1,6 @@
 #ifndef MACHINE_H
 #define MACHINE_H
 #include "includes.h"
-#include "bus.h"
 #include "cpu32.h"
 
 // TODO: add union to create a VM32 and VM64
