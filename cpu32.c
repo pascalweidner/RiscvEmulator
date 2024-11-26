@@ -1,6 +1,4 @@
 #include "cpu32.h"
-#include "rv32i.h"
-
 
 vCPU32 *init_vCPU32(DRAM32 *dram, InstructionHandler *table, RTypeInstructionHandler *rtypeTable) {
     vCPU32 *cpu = (vCPU32*)malloc(sizeof(vCPU32));
