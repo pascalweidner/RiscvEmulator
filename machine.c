@@ -1,8 +1,11 @@
 #include "machine.h"
+#include "cpu32.h"
 #include "rv32i.h"
 #include "rv32m.h"
 #include "includes.h"
+#include "rv32f.h"
 #include <ctype.h>
+#include <stdint.h>
 
 static VM32 *init_vm32() {
     VM32 *vm = (VM32*)calloc(1,sizeof(VM32));
@@ -22,13 +25,17 @@ static void register_rtypeHandler(RTypeInstructionHandler *table, uint16_t func,
     table[func] = handler;
 }
 
+static void register_frtypeHandler(FRTypeInstructionHandler *table, uint8_t func, FRTypeInstructionHandler handler) {
+    table[func] = handler;
+}
+
 static void register_rv32i_instructions(InstructionHandler *table, RTypeInstructionHandler *rtypeTable) {
     register_handler(table, RTYPE, rtype);
     register_handler(table, STYPE, stype);
     register_handler(table, BTYPE, btype);
     register_handler(table, ITYPE, itype);
     register_handler(table, ITYPE2, itype2);
-    register_handler(table, ITYPE3, itype3);
+    register_handler(table, ITYPE3, itype3); 
     register_handler(table, JTYPE, jtype);
     register_handler(table, UTYPE, utype);
     register_handler(table, UTYPE2, utype2);
@@ -56,6 +63,26 @@ static void register_rv32m_instructions(RTypeInstructionHandler *rtypeTable) {
     register_rtypeHandler(rtypeTable, DIVU_INST, divu_handler);
     register_rtypeHandler(rtypeTable, REM_INST, rem_handler);
     register_rtypeHandler(rtypeTable, REMU_INST, remu_handler);
+}
+
+static void register_rv32f_instructions(InstructionHandler *table, FSTypeInstructionHandler *fstypeTable, FITypeInstructionHandler *fitypeTable, FRTypeInstructionHandler *frtypeTable) {
+    register_handler(table, FRTYPE, frtype);
+    register_handler(table, FMADD, fmadd);
+    register_handler(table, FMSUB, fmsub);
+    register_handler(table, FNMSUB, fnmsub);
+    register_handler(table, FNMADD, fnmadd);
+    register_handler(table, FSTYPE, fstype);
+    register_handler(table, FITYPE, fitype);
+
+    //register frtype instructions
+    register_frtypeHandler(frtypeTable, FADD_INST, fadd_handler);
+    register_frtypeHandler(frtypeTable, FSUB_INST, fsub_handler);
+    register_frtypeHandler(frtypeTable, FMUL_INST, fmul_handler);
+    register_frtypeHandler(frtypeTable, FDIV_INST, fdiv_handler);
+    register_frtypeHandler(frtypeTable, FSQRT_INST, fsqrt_handler);
+    register_frtypeHandler(frtypeTable, FMIN_MAX_INST, fmin_max_handler);
+    register_frtypeHandler(frtypeTable, FEQ_FLT_FLE_INST, feq_lt_le_handler);
+    //... TODO: implement later the rest
 
 }
 
@@ -86,6 +113,9 @@ VM32 *create_vm(char *specs) {
         switch(specs[i]) {
             case 'm':
                 register_rv32m_instructions(vm->rtypeTable);
+                break;
+            case 'f':
+                register_rv32f_instructions(vm->table, vm->fstypeTable, vm->fitypeTable, vm->frtypeTable);
                 break;
             default:
                 fprintf(stderr, "this extension (%c) is not supported!", specs[i]);

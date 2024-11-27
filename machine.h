@@ -9,6 +9,9 @@ typedef struct VM32 {
     DRAM32 *dram;
     InstructionHandler table[255];
     RTypeInstructionHandler rtypeTable[1024];
+    FRTypeInstructionHandler frtypeTable[255];
+    FITypeInstructionHandler fitypeTable[15];
+    FSTypeInstructionHandler fstypeTable[15];
 } VM32;
 
 /*
