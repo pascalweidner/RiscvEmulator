@@ -19,6 +19,7 @@ typedef void (*FITypeInstructionHandler)(vCPU32 *cpu, uint16_t imm, uint8_t rd, 
 struct vCPU32 {
     uint32_t x[32];
     float32_t f[32];
+    uint32_t fcsr;
     uint32_t pc;
     BUS32 bus;
     InstructionHandler *table;
