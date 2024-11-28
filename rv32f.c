@@ -1,8 +1,22 @@
 #include "rv32f.h"
+#include "float_types.h"
 #include <fenv.h>
 #include <math.h>
 #include <stdio.h>
 #include <immintrin.h>
+#include <float.h>
+
+static inline int is_nan_gen(float32_t val) {
+    return ((*(uint32_t *)&val) & 0xFF800000) == SNAN;
+}
+
+static inline int is_signaling_nan(float32_t val) {
+    return ((*(uint32_t *)&val) & 0xFFC00000 ) == SNAN;
+}
+
+static inline int is_quiet_nan(float32_t val) {
+    return ((*(uint32_t *)&val) & 0xFFC00000) == QNAN;
+}
 
 static inline void setRM(vCPU32 *cpu, uint8_t rm) {
     switch(rm) {
@@ -76,12 +90,13 @@ void fsqrt_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t fun
 }
 
 void fmin_max_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t rs2) {
-    if(isnan(cpu->f[rs1]) && isnan(cpu->f[rs2])) {
+    // TODO: implement signaling nan
+    if(isnanf(cpu->f[rs1]) && isnanf(cpu->f[rs2])) {
         cpu->f[rd] = NAN;
         return;
-    } else if(isnan(cpu->f[rs1])) {
+    } else if(isnanf(cpu->f[rs1])) {
         cpu->f[rd] = cpu->f[rs2];
-    } else if(isnan(cpu->f[rs2])) {
+    } else if(isnanf(cpu->f[rs2])) {
         cpu->f[rd] = cpu->f[rs1];
     }
 
@@ -99,6 +114,68 @@ void fmin_max_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8
 }
 
 void feq_lt_le_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t rs2) {
-    //TODO
+    if(isnanf(cpu->f[rs1]) || isnanf(cpu->f[rs2])) {
+        //TODO: check for signaling NAN and set exception flag when fle or flt and only set exception flag when feq and a signaling nan is present
+        cpu->f[rd] = 0;
+        return;
+    }
+
+    switch(func3) {
+        case 0: // FLE
+            cpu->f[rd] = cpu->f[rs1] <= cpu->f[rs2];
+            break;
+        case 1: // FLT
+            cpu->f[rd] = cpu->f[rs1] < cpu->f[rs2];
+            break;
+        case 2: // FEQ
+            cpu->f[rd] = cpu->f[rs1] == cpu->f[rs2];
+            break;
+        default:
+            printf("Instruction is not supported!\n");
+            break;
+    }
 }
 
+void fmv_fclass_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t plc) {
+    switch(func3) {
+        case 0: // FMV
+            memcpy(&(cpu->f[rs1]), &(cpu->f[rd]), sizeof(float32_t));
+            break;
+        case 1: // FCLASS
+            uint16_t result = 0;
+            if(isnanf(cpu->f[rs1])) {
+                //TODO: check for signaling nan
+                result |= (1 << 9);
+            } else if(isinff(cpu->f[rs1])) {
+                result |= (signbit(cpu->f[rs1])) ? (1 << 0) : (1 << 7);
+            } else if(cpu->f[rs1] == 0.0f) {
+                if(signbit(cpu->f[rs1])) {
+                    result |= (1 << 3);
+                } else {
+                    result = (1 << 4);
+                }
+            } else {
+                if(fabsf(cpu->f[rs1]) < FLT_MIN) result |= (signbit(cpu->f[rs1])) ? (1 << 2) : (1 << 5);
+                else result |= (signbit(cpu->f[rs1])) ? (1 << 1) : (1 << 6);
+            }
+            break;
+        default:
+            printf("instruction is not supported!\n");
+            exit(-1);
+
+    }
+}
+
+void fsgn_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t rs2) {
+    switch(func3) {
+        case 0: // SGNJ
+            break;
+        case 1: // SGNJN
+            break;
+        case 2: // SGNJX
+            break;
+        default:
+            printf("instruction is not supported!\n");
+            exit(-1);
+    }
+}
