@@ -90,22 +90,29 @@ void fsqrt_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t fun
 }
 
 void fmin_max_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t rs2) {
-    // TODO: implement signaling nan
-    if(isnanf(cpu->f[rs1]) && isnanf(cpu->f[rs2])) {
-        cpu->f[rd] = NAN;
+    if(is_signaling_nan(cpu->f[rs1]) || is_signaling_nan(cpu->f[rs2])) {/*TODO throw exception*/}
+
+    if(is_nan_gen(cpu->f[rs1]) && is_nan_gen(cpu->f[rs2])) {
+        cpu->f[rd] = QNAN;
         return;
-    } else if(isnanf(cpu->f[rs1])) {
+    } else if(is_nan_gen(cpu->f[rs1])) {
         cpu->f[rd] = cpu->f[rs2];
-    } else if(isnanf(cpu->f[rs2])) {
+    } else if(is_nan_gen(cpu->f[rs2])) {
         cpu->f[rd] = cpu->f[rs1];
     }
 
     switch (func3) {
         case 0: // MIN
-            cpu->f[rd] = (cpu->f[rs1] < cpu->f[rs2]) ? rs1 : rs2;
+            if(cpu->f[rs1] == cpu->f[rs2]) {
+                cpu->f[rd] = signbit(cpu->f[rs1]) ? cpu->f[rs1] : cpu->f[rs2];
+            }
+            cpu->f[rd] = (cpu->f[rs1] < cpu->f[rs2]) ? cpu->f[rs1] : cpu->f[rs2];
             break;
         case 1: // MAX
-            cpu->f[rd] = (cpu->f[rs1] > cpu->f[rs2]) ? rs1 : rs2;
+            if(cpu->f[rs1] == cpu->f[rs2]) {
+                cpu->f[rd] = signbit(cpu->f[rs1]) ? cpu->f[rs2] : cpu->f[rs1];
+            }
+            cpu->f[rd] = (cpu->f[rs1] > cpu->f[rs2]) ? cpu->f[rs1] : cpu->f[rs2];
             break;
         default: 
             printf("Invalid func for min/max\n");
@@ -114,11 +121,16 @@ void fmin_max_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8
 }
 
 void feq_lt_le_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t rs2) {
-    if(isnanf(cpu->f[rs1]) || isnanf(cpu->f[rs2])) {
-        //TODO: check for signaling NAN and set exception flag when fle or flt and only set exception flag when feq and a signaling nan is present
+    if(is_signaling_nan(cpu->f[rs1]) || is_signaling_nan(cpu->f[rs2])) {
+        /*TODO: throw exception*/
         cpu->f[rd] = 0;
         return;
+    } else if(is_nan_gen(cpu->f[rs1]) || is_nan_gen(cpu->f[rs2])) {
+        if(func3 == 0 || func3 == 1) {/*TODO: throw exception*/}
+        cpu->f[rd] = 0;
+        return;;
     }
+
 
     switch(func3) {
         case 0: // FLE
@@ -138,35 +150,44 @@ void feq_lt_le_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint
 
 void fmv_fclass_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t plc) {
     switch(func3) {
-        case 0: // FMV
-            memcpy(&(cpu->f[rs1]), &(cpu->f[rd]), sizeof(float32_t));
+        case 0: // FMV.X.W
+            memcpy(&(cpu->f[rs1]), &(cpu->x[rd]), sizeof(float32_t));
             break;
         case 1: // FCLASS
-            uint16_t result = 0;
-            if(isnanf(cpu->f[rs1])) {
-                //TODO: check for signaling nan
+            uint32_t result = 0;
+            int inf = isinff(cpu->f[rs1]);
+            if(is_signaling_nan(cpu->f[rs1])) {
+                result |= (1 << 8);
+            } else if(is_quiet_nan(cpu->f[rs1])) {
                 result |= (1 << 9);
-            } else if(isinff(cpu->f[rs1])) {
-                result |= (signbit(cpu->f[rs1])) ? (1 << 0) : (1 << 7);
-            } else if(cpu->f[rs1] == 0.0f) {
+            } else if(inf == -1) { // -inf or inf
+                result |= (1 << 0);
+            } else if (inf == 1) {
+                result |= (1 << 7);
+            } else if(cpu->f[rs1] == 0.0f) { // -0.0 or 0.0
                 if(signbit(cpu->f[rs1])) {
                     result |= (1 << 3);
                 } else {
                     result = (1 << 4);
                 }
             } else {
-                if(fabsf(cpu->f[rs1]) < FLT_MIN) result |= (signbit(cpu->f[rs1])) ? (1 << 2) : (1 << 5);
-                else result |= (signbit(cpu->f[rs1])) ? (1 << 1) : (1 << 6);
+                if(fabsf(cpu->f[rs1]) < FLT_MIN) result |= (signbit(cpu->f[rs1])) ? (1 << 2) : (1 << 5); // subnormal number
+                else result |= (signbit(cpu->f[rs1])) ? (1 << 1) : (1 << 6); // normal number
             }
+            cpu->f[rd] = result;
             break;
         default:
             printf("instruction is not supported!\n");
             exit(-1);
-
     }
 }
 
+void fmv_wx_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t plc) {
+    memcpy(&(cpu->x[rs1]), &(cpu->f[rd]), sizeof(uint32_t));
+}
+
 void fsgn_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t rs2) {
+    //TODO
     switch(func3) {
         case 0: // SGNJ
             break;
@@ -178,4 +199,12 @@ void fsgn_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t r
             printf("instruction is not supported!\n");
             exit(-1);
     }
+}
+
+void fcvt_sw_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t func) {
+    //TODO
+}
+
+void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t func) {
+    //TODO
 }
