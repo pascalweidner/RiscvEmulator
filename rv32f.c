@@ -6,6 +6,12 @@
 #include <immintrin.h>
 #include <float.h>
 
+#define MIN_FCVTWS -2147483648
+#define MAX_FCVTWS 2147483647
+#define MIN_FCVTWUS 0
+#define MAX_FCVTWUS 4294967295
+
+
 static inline int is_nan_gen(float32_t val) {
     return ((*(uint32_t *)&val) & 0xFF800000) == SNAN;
 }
@@ -187,7 +193,6 @@ void fmv_wx_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t pl
 }
 
 void fsgn_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t rs2) {
-    //TODO
     switch(func3) {
         case 0: // SGNJ
             break;
@@ -202,9 +207,57 @@ void fsgn_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t r
 }
 
 void fcvt_sw_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t func) {
-    //TODO
+    switch(func) {
+        case 0: // FCVT.S.W
+            break;
+        case 1: // FCVT.S.WU
+            break;
+    }
 }
 
 void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t func) {
-    //TODO
+    setRM(cpu, rm);
+    float32_t res = roundf(cpu->f[rs1]);
+
+    switch(func) {
+        case 0: // FCVT.W.S
+            if(res > (float32_t)MAX_FCVTWS) {
+                cpu->x[rd] = MAX_FCVTWS;
+                return;
+            } else if(res < (float32_t)MIN_FCVTWS) {
+                cpu->x[rd] = MIN_FCVTWS;
+                return;
+            } else if(isinff(cpu->f[rs1]) == -1 ) {
+                cpu->x[rd] = MIN_FCVTWS;
+                return;
+            } else if(isinff(cpu->f[rs1]) == 1) {
+                cpu->x[rd] = MAX_FCVTWS;
+                return;
+            }
+            cpu->x[rd] = (int32_t)res;
+            if((int32_t)(cpu->x[rd]) != (int32_t)(cpu->f[rs1])) {
+                //TODO: set inexact flag
+            }
+            break;
+        case 1: // FCVT.WU.S
+            //TODO: set invalid excetpion fleg
+            if(res > (float32_t)MAX_FCVTWUS) {
+                cpu->x[rd] = MAX_FCVTWUS;
+                return;
+            } else if(res < (float32_t)MIN_FCVTWUS) {
+                cpu->x[rd] = MIN_FCVTWUS;
+                return;
+            } else if(isinff(cpu->f[rs1]) == -1) {
+                cpu->x[rd] = 0;
+                return;
+            } else if(isinff(cpu->f[rs1]) == 1) {
+                cpu->x[rd] = MAX_FCVTWUS;
+                return;
+            }
+            cpu->x[rd] = (uint32_t)res;
+            if(cpu->x[rd] != (uint32_t)(cpu->f[rs1])) {
+                //TODO: set inexact flag
+            }
+            break;
+    }
 }
