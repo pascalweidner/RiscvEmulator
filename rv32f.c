@@ -209,8 +209,10 @@ void fsgn_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t r
 void fcvt_sw_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t func) {
     switch(func) {
         case 0: // FCVT.S.W
+            cpu->f[rd] = (float32_t)((int32_t)(cpu->x[rs1]));
             break;
         case 1: // FCVT.S.WU
+            cpu->f[rd] = (float32_t)(cpu->x[rs1]);
             break;
     }
 }
