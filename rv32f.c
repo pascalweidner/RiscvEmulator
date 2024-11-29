@@ -193,12 +193,19 @@ void fmv_wx_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t pl
 }
 
 void fsgn_handler(vCPU32 *cpu, uint8_t rd, uint8_t func3, uint8_t rs1, uint8_t rs2) {
+    uint32_t res;
     switch(func3) {
-        case 0: // SGNJ
+        case 0: // FSGNJ
+            res = (*(uint32_t *)&(cpu->f[rs1]) & 0x7FFFFFFF) | (*(uint32_t*)&(cpu->f[rs2]) & 0x80000000);
+            memcpy(&(cpu->f[rd]), &res, sizeof(uint32_t));
             break;
-        case 1: // SGNJN
+        case 1: // FSGNJN
+            res = (*(uint32_t *)&(cpu->f[rs1]) & 0x7FFFFFFF) | (~(*(uint32_t*)&(cpu->f[rs2])) & 0x80000000);
+            memcpy(&(cpu->f[rd]), &res, sizeof(uint32_t));
             break;
-        case 2: // SGNJX
+        case 2: // FSGNJX
+            res = (*(uint32_t *)&(cpu->f[rs1]) & 0x7FFFFFFF) | ((*(uint32_t*)&(cpu->f[rs2]) & 0x80000000) ^ (*(uint32_t*)&(cpu->f[rs1]) & 0x80000000));
+            memcpy(&(cpu->f[rd]), &res, sizeof(uint32_t));
             break;
         default:
             printf("instruction is not supported!\n");
@@ -219,6 +226,7 @@ void fcvt_sw_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t f
 
 void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t func) {
     setRM(cpu, rm);
+    //TODO: throw exception when nan
     float32_t res = roundf(cpu->f[rs1]);
 
     switch(func) {
@@ -232,7 +240,7 @@ void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t f
             } else if(isinff(cpu->f[rs1]) == -1 ) {
                 cpu->x[rd] = MIN_FCVTWS;
                 return;
-            } else if(isinff(cpu->f[rs1]) == 1) {
+            } else if(isinff(cpu->f[rs1]) == 1 || is_nan_gen(cpu->f[rs1])) {
                 cpu->x[rd] = MAX_FCVTWS;
                 return;
             }
@@ -252,7 +260,7 @@ void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t f
             } else if(isinff(cpu->f[rs1]) == -1) {
                 cpu->x[rd] = 0;
                 return;
-            } else if(isinff(cpu->f[rs1]) == 1) {
+            } else if(isinff(cpu->f[rs1]) == 1 || is_nan_gen(cpu->f[rs1])) {
                 cpu->x[rd] = MAX_FCVTWUS;
                 return;
             }
