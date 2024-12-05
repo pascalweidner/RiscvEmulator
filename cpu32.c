@@ -121,8 +121,6 @@ void btype(vCPU32* cpu, uint32_t inst, uint8_t imm1)
     uint16_t imm11 = (imm1 & 0x1) << 11;
     uint8_t imm4_1 = (imm1 >> 1) & 0xF;
 
-    printf("reg: %d %d\n", rs1, rs2);
-
     // FEA2 C2E3
     int32_t imm = (imm12 << 12) | imm11 | (imm10_5 << 5) | (imm4_1 << 1);
     printf("%d\n", imm);
@@ -281,12 +279,12 @@ void jtype(vCPU32* cpu, uint32_t inst, uint8_t rd) {
     uint8_t imm19_12 = inst & 0xFF;
     inst >>= 8;
     uint8_t imm11 = inst & 0x1;
-    inst >>= 1;
+    inst >>= 1; 
     uint16_t imm10_1 = inst & 0b1111111111;
     inst >>= 1;
     int8_t imm20 = inst & 0x1;
     if (imm20 == 1) imm20 = -1;
-
+ 
     int32_t imm = (imm10_1 << 1) | (imm11 << 11) | (imm19_12 << 12) | (imm20 << 20);
     cpu->x[rd] = cpu->pc + 4;
     cpu->pc += (imm);
@@ -294,4 +292,55 @@ void jtype(vCPU32* cpu, uint32_t inst, uint8_t rd) {
 
 void ebreak(vCPU32* cpu, uint32_t inst, uint8_t rd) {
     exit(0);
+}
+
+void fitype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+    uint8_t funct3 = inst & 0b111;
+    inst >>= 3;
+    uint8_t rs1 = inst & 0b11111;
+    inst >>= 5;
+    uint16_t imm = inst;
+
+    cpu->fitypeTable[funct3](cpu, imm, rd, rs1);
+}
+
+void frtype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+    uint8_t rm = inst & 0b111;
+    inst >>= 3;
+    uint8_t rs1 = inst & 0b11111;
+    inst >>= 5;
+    uint8_t rs2 = inst & 0b11111;
+    inst >>= 5;
+    uint8_t funct7 = inst;
+
+    cpu->frtypeTable[funct7](cpu, rd, rs1, rs2, rm);
+}
+
+void fstype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+    uint8_t funct3 = inst & 0b111;
+    inst >>= 3;
+    uint8_t rs1 = inst & 0b11111;
+    inst >>= 5;
+    uint8_t rs2 = inst & 0b11111;
+    inst >>= 5;
+    uint16_t imm = inst << 5;
+    imm |= rd;
+
+    cpu->fstypeTable[funct3](cpu, imm, rs1, rs2);
+}
+
+void fmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+
+}
+
+void fmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+
+}
+
+void fnmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+
+}
+
+void fnmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+
 }

@@ -12,6 +12,9 @@
 #define FNMADD 0b1001111
 #define FSTYPE 0b0100111
 
+#define FLW_INST 0b010
+#define FSW_INST 0b010
+
 #define FADD_INST 0b0
 #define FSUB_INST 0b100
 #define FMUL_INST 0b1000
@@ -48,6 +51,7 @@ void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t f
 void fcvt_sw_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t func);
 void fmv_wx_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t plc);
 
-
+void fsw_handler(vCPU32 *cpu, uint16_t imm, uint8_t rs1, uint8_t rs2);
+void flw_handler(vCPU32 *cpu, uint16_t imm, uint8_t rd, uint8_t rs1);
 
 #endif

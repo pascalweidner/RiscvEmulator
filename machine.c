@@ -29,6 +29,14 @@ static void register_frtypeHandler(FRTypeInstructionHandler *table, uint8_t func
     table[func] = handler;
 }
 
+static void register_fitypeHandler(FITypeInstructionHandler *table, uint8_t func, FITypeInstructionHandler handler) {
+    table[func] = handler;
+}
+
+static void register_fstypeHandler(FSTypeInstructionHandler *table, uint8_t func, FSTypeInstructionHandler handler) {
+    table[func] = handler;
+}
+
 static void register_rv32i_instructions(InstructionHandler *table, RTypeInstructionHandler *rtypeTable) {
     register_handler(table, RTYPE, rtype);
     register_handler(table, STYPE, stype);
@@ -82,8 +90,19 @@ static void register_rv32f_instructions(InstructionHandler *table, FSTypeInstruc
     register_frtypeHandler(frtypeTable, FSQRT_INST, fsqrt_handler);
     register_frtypeHandler(frtypeTable, FMIN_MAX_INST, fmin_max_handler);
     register_frtypeHandler(frtypeTable, FEQ_FLT_FLE_INST, feq_lt_le_handler);
-    //... TODO: implement later the rest
+    register_frtypeHandler(frtypeTable, FSGN_INST, fsgn_handler);
+    register_frtypeHandler(frtypeTable, FCVT_WS_INST, fcvt_ws_handler);
+    register_frtypeHandler(frtypeTable, FMV_FCLASS_INST, fmv_fclass_handler);
+    register_frtypeHandler(frtypeTable, FCVT_SW_INST, fcvt_sw_handler);
+    register_frtypeHandler(frtypeTable, FMV_WX_INST, fmv_wx_handler);
 
+    // register fitype instructions
+    register_fitypeHandler(fitypeTable, FLW_INST, flw_handler);
+
+    // register fstype instructions
+    register_fstypeHandler(fstypeTable, FSW_INST, fsw_handler);
+
+    //TODO: register fnmadd, fnmsub fnadd, fnsub
 }
 
 void toLowercase(char *str) {

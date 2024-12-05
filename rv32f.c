@@ -1,4 +1,5 @@
 #include "rv32f.h"
+#include "bus.h"
 #include "float_types.h"
 #include <fenv.h>
 #include <math.h>
@@ -250,7 +251,7 @@ void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t f
             }
             break;
         case 1: // FCVT.WU.S
-            //TODO: set invalid excetpion fleg
+            //TODO: set invalid excetpion flag
             if(res > (float32_t)MAX_FCVTWUS) {
                 cpu->x[rd] = MAX_FCVTWUS;
                 return;
@@ -268,6 +269,17 @@ void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t f
             if(cpu->x[rd] != (uint32_t)(cpu->f[rs1])) {
                 //TODO: set inexact flag
             }
-            break;
+            break;;
     }
+}
+
+void flw_handler(vCPU32 *cpu, uint16_t imm, uint8_t rd, uint8_t rs1) {
+    uint32_t value = bus32_load_dram(&(cpu->bus), cpu->x[rs1] + imm, 32);
+    memcpy(&(cpu->f[rd]), &value, sizeof(uint32_t));
+}
+
+void fsw_handler(vCPU32 *cpu, uint16_t imm, uint8_t rs1, uint8_t rs2) {
+    uint32_t value;
+    memcpy(&value, &(cpu->f[rs2]), sizeof(uint32_t));
+    bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 32, value);
 }
