@@ -134,6 +134,7 @@ VM32 *create_vm(char *specs) {
                 register_rv32m_instructions(vm->rtypeTable);
                 break;
             case 'f':
+                vm->cpu->fcsr = 0;
                 register_rv32f_instructions(vm->table, vm->fstypeTable, vm->fitypeTable, vm->frtypeTable);
                 break;
             default:

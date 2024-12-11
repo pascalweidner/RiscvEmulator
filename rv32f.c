@@ -12,6 +12,7 @@
 #define MIN_FCVTWUS 0
 #define MAX_FCVTWUS 4294967295
 
+//TODO: Handle signaling Nan as operands and other exceptions
 
 static inline int is_nan_gen(float32_t val) {
     return ((*(uint32_t *)&val) & 0xFF800000) == SNAN;
@@ -52,11 +53,13 @@ static inline void setRM(vCPU32 *cpu, uint8_t rm) {
                     fesetround(FE_DOWNWARD);
                     break;
                 default:
+                    //TODO raise illegal instruction exception
                     printf("Reserved for future use!\n");
                     exit(-1);
             }
             break;
         default:
+            //TODO raise illegal instructon exception
             printf("Reserved for future use\n");
             exit(-1);
     }
@@ -274,12 +277,65 @@ void fcvt_ws_handler(vCPU32 *cpu, uint8_t rd, uint8_t rm, uint8_t rs1, uint8_t f
 }
 
 void flw_handler(vCPU32 *cpu, uint16_t imm, uint8_t rd, uint8_t rs1) {
-    uint32_t value = bus32_load_dram(&(cpu->bus), cpu->x[rs1] + imm, 32);
+    uint32_t value = bus32_load_dram(&(cpu->bus), cpu->x[rs1] + (int32_t)imm, 32);
     memcpy(&(cpu->f[rd]), &value, sizeof(uint32_t));
 }
 
 void fsw_handler(vCPU32 *cpu, uint16_t imm, uint8_t rs1, uint8_t rs2) {
     uint32_t value;
     memcpy(&value, &(cpu->f[rs2]), sizeof(uint32_t));
-    bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 32, value);
+    bus32_store_dram(&(cpu->bus), cpu->x[rs1] + (int32_t)imm, 32, value);
+}
+
+//TODO set invalid operation flag when rs1 and rs2 are infinity or zero in the fma instructions, even when the added is a quiet NaN
+void fmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+    uint8_t rm = inst & 0b111;
+    inst >>= 3;
+    uint8_t rs1 = inst & 0b11111;
+    inst >>= 5;
+    uint8_t rs2 = inst & 0b11111;
+    inst >>= 7;
+    uint8_t rs3 = inst & 0b11111;
+    setRM(cpu, rm);   
+
+    cpu->f[rd] = fmaf(cpu->f[rs1], cpu->f[rs2], cpu->f[rs3]);
+}
+
+void fmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+    uint8_t rm = inst & 0b111;
+    inst >>= 3;
+    uint8_t rs1 = inst & 0b11111;
+    inst >>= 5;
+    uint8_t rs2 = inst & 0b11111;
+    inst >>= 7;
+    uint8_t rs3 = inst & 0b11111;
+    setRM(cpu, rm);
+
+    cpu->f[rd] = fmaf(cpu->f[rs1], cpu->f[rs2], -(cpu->f[rs3]));
+}
+
+void fnmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+    uint8_t rm = inst & 0b111;
+    inst >>= 3;
+    uint8_t rs1 = inst & 0b11111;
+    inst >>= 5;
+    uint8_t rs2 = inst & 0b11111;
+    inst >>= 7;
+    uint8_t rs3 = inst & 0b11111;
+    setRM(cpu, rm);
+
+    cpu->f[rd] = -fma(cpu->f[rs1], cpu->f[rs2], -(cpu->f[rs3]));
+}
+
+void fnmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+    uint8_t rm = inst & 0b111;
+    inst >>= 3;
+    uint8_t rs1 = inst & 0b11111;
+    inst >>= 5;
+    uint8_t rs2 = inst & 0b11111;
+    inst >>= 7;
+    uint8_t rs3 = inst & 0b11111;
+    setRM(cpu, rm);
+
+    cpu->f[rd] = -fma(cpu->f[rs1], cpu->f[rs2], cpu->f[rs3]);
 }

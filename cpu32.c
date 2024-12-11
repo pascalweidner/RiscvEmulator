@@ -328,19 +328,3 @@ void fstype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
 
     cpu->fstypeTable[funct3](cpu, imm, rs1, rs2);
 }
-
-void fmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
-
-}
-
-void fmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
-
-}
-
-void fnmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
-
-}
-
-void fnmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
-
-}
