@@ -22,6 +22,42 @@ struct vCPU32 {
     uint32_t fcsr;
     uint32_t pc;
     BUS32 bus;
+
+    //M-Mode registers
+    // Machine Information Registers Privilege=MRO
+    uint32_t mvendorid; //0xF11
+    uint32_t marchid; //0xF12
+    uint32_t mimpid; //0xF13
+    uint32_t mhartid; //0xF14
+    uint32_t mconfigptr; //0xF15
+
+    //Machine Trap Setup Privilege=MRW
+    uint32_t mstatus; // 0x300
+    uint32_t misa; // 0x301
+    uint32_t medeleg; // 0x302
+    uint32_t mideleg; // 0x303
+    uint32_t mie; // 0x304
+    uint32_t mtvec; //0x305
+    uint32_t mcounteren; //0x306
+    uint32_t mstatush; //0x310
+    uint32_t medelegh; //0x312
+
+    //Machine Trap Handling
+    uint32_t mscratch; //0x340
+    uint32_t mepc; //0x341
+    uint32_t mcause; //0x342
+    uint32_t mtval; //0x343
+    uint32_t mip; //0x344
+    uint32_t mtinst; //0x34A
+    uint32_t mtval2; //0x34B
+
+    //Machine Configuration
+    uint32_t menvcfg; //0x30A
+    uint32_t menvcfgh; //0x31A
+    uint32_t mseccfg; //0x747
+    uint32_t mseccfgh; //0x757
+
+
     InstructionHandler *table;
     RTypeInstructionHandler *rtypeTable;
     FRTypeInstructionHandler  *frtypeTable;
