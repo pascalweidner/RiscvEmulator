@@ -57,6 +57,33 @@ struct vCPU32 {
     uint32_t mseccfg; //0x747
     uint32_t mseccfgh; //0x757
 
+    //Machine Memory Protection
+    uint32_t pmpcfg[16]; // 0x3A0 - 0x3AF
+    uint32_t pmpaddr[64]; // 0x380 - 0x3EF
+
+    // Machine State Enable Registers
+    uint32_t mstateen[4]; // 0x30C - 0x30F
+    uint32_t mstateenh[4]; //0x31C - 0x31F
+
+    // Machine Non-Maksable Interrupt Handling
+    uint32_t mnscratch; // 0x740
+    uint32_t mnepc; //0x741
+    uint32_t mncause; //0x742
+    uint32_t mnstatus; //0x744
+
+    // Machine Counter/Timers
+    uint32_t mcylce; //0xB00
+    uint32_t minstret; //0xB02
+    uint32_t mhpmcounter3_31[29]; //0xB03 - 0xB1F
+    uint32_t mcycleh; //0xB80
+    uint32_t minstreth; //0xB82
+    uint32_t mhpmcounter3_31h[29]; //0xB83 - 0xB9F
+
+    // Machine Counter Setup
+    uint32_t mcountinhibit; //0x320
+    uint32_t mhpmevent3_31[29]; //0x323 - 0x33F
+    uint32_t mhpmevent3_31h[29]; //0x723 - 0x73F
+
 
     InstructionHandler *table;
     RTypeInstructionHandler *rtypeTable;
