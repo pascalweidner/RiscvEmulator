@@ -12,7 +12,7 @@ void read_file(DRAM32* dram, char *filename)
     if (!file) {
         fprintf(stderr, "Unable to open file %s", filename);
     }
-
+    //next
 
 
     uint32_t *pc = (uint32_t *)(dram->mem);
