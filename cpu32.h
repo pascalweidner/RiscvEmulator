@@ -23,67 +23,17 @@ struct vCPU32 {
     uint32_t pc;
     BUS32 bus;
 
-    //M-Mode registers
-    // Machine Information Registers Privilege=MRO
-    uint32_t mvendorid; //0xF11
-    uint32_t marchid; //0xF12
-    uint32_t mimpid; //0xF13
-    uint32_t mhartid; //0xF14
-    uint32_t mconfigptr; //0xF15
-
-    //Machine Trap Setup Privilege=MRW
-    uint32_t mstatus; // 0x300
-    uint32_t misa; // 0x301
-    uint32_t medeleg; // 0x302
-    uint32_t mideleg; // 0x303
-    uint32_t mie; // 0x304
-    uint32_t mtvec; //0x305
-    uint32_t mcounteren; //0x306
-    uint32_t mstatush; //0x310
-    uint32_t medelegh; //0x312
-
-    //Machine Trap Handling
-    uint32_t mscratch; //0x340
-    uint32_t mepc; //0x341
-    uint32_t mcause; //0x342
-    uint32_t mtval; //0x343
-    uint32_t mip; //0x344
-    uint32_t mtinst; //0x34A
-    uint32_t mtval2; //0x34B
-
-    //Machine Configuration
-    uint32_t menvcfg; //0x30A
-    uint32_t menvcfgh; //0x31A
-    uint32_t mseccfg; //0x747
-    uint32_t mseccfgh; //0x757
-
-    //Machine Memory Protection
-    uint32_t pmpcfg[16]; // 0x3A0 - 0x3AF
-    uint32_t pmpaddr[64]; // 0x380 - 0x3EF
-
-    // Machine State Enable Registers
-    uint32_t mstateen[4]; // 0x30C - 0x30F
-    uint32_t mstateenh[4]; //0x31C - 0x31F
-
-    // Machine Non-Maksable Interrupt Handling
-    uint32_t mnscratch; // 0x740
-    uint32_t mnepc; //0x741
-    uint32_t mncause; //0x742
-    uint32_t mnstatus; //0x744
-
-    // Machine Counter/Timers
-    uint32_t mcylce; //0xB00
-    uint32_t minstret; //0xB02
-    uint32_t mhpmcounter3_31[29]; //0xB03 - 0xB1F
-    uint32_t mcycleh; //0xB80
-    uint32_t minstreth; //0xB82
-    uint32_t mhpmcounter3_31h[29]; //0xB83 - 0xB9F
-
-    // Machine Counter Setup
-    uint32_t mcountinhibit; //0x320
-    uint32_t mhpmevent3_31[29]; //0x323 - 0x33F
-    uint32_t mhpmevent3_31h[29]; //0x723 - 0x73F
-
+    //CSR-Registers
+    //csr[11:0] csr[11:10] -> registers is read/write 00, 01, 10 or read-only 11; csr[9:8] -> encode the lowest privilege level that can access the CSR (M-Mode 11; User_Mode 00)
+    // TODO: instructions that access a CSR without appropriate privilege level raise illegal-instruction exceptions
+    // TODO: A read/write register might also contain some bits that are read-only, in which case writes to the read only bits are ignored
+    // TODO: only debug mode can access 0x7B0-0x7BF while 0x7A0-0x7BF can only be used by debug mode but m-mode can access them
+    uint32_t csr[4096];
+    //TODO: handle WPRI: writes to these bits need to be ignored and reads can return an arbitrary value
+    // TODO: handle WLRL: the value written must fall within a specific set of legal values (illegal values are ignored); when read the value is always legal; can raise an illegal instruction exception
+    // TODO: handle WARL: any value can be written; reads are always legal values (illegal values are replaced, clamped or sanitized) but the legal value returned should deterministically depend on the illegal written value and the architectural state of the hart.
+    // TODO: if CSR1 changes the allowed range of CSR2, then CSR2 will be set to an UNSPECIFIED-value from among its new legal values, even if the value remains legal
+    // TODO: CSR Width Modulation (for now not allowed)
 
     InstructionHandler *table;
     RTypeInstructionHandler *rtypeTable;
