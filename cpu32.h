@@ -34,6 +34,7 @@ struct vCPU32 {
     // TODO: handle WARL: any value can be written; reads are always legal values (illegal values are replaced, clamped or sanitized) but the legal value returned should deterministically depend on the illegal written value and the architectural state of the hart.
     // TODO: if CSR1 changes the allowed range of CSR2, then CSR2 will be set to an UNSPECIFIED-value from among its new legal values, even if the value remains legal
     // TODO: CSR Width Modulation (for now not allowed)
+    // TODO: think about how to check the type of csr
 
     InstructionHandler *table;
     RTypeInstructionHandler *rtypeTable;
