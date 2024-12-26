@@ -36,6 +36,7 @@ struct vCPU32 {
     // TODO: CSR Width Modulation (for now not allowed)
     // TODO: think about how to check the type of csr
 
+
     InstructionHandler *table;
     RTypeInstructionHandler *rtypeTable;
     FRTypeInstructionHandler  *frtypeTable;
