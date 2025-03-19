@@ -1,9 +1,9 @@
 #include "machine.h"
 #include "cpu32.h"
-#include "rv32i.h"
-#include "rv32m.h"
+#include "rv32extensions/rv32i.h"
+#include "rv32extensions/rv32m.h"
 #include "includes.h"
-#include "rv32f.h"
+#include "rv32extensions/rv32f.h"
 #include <ctype.h>
 #include <stdint.h>
 
@@ -120,12 +120,9 @@ void toLowercase(char *str) {
 VM32 *create_vm(char *specs) {
     if(strncmp(specs, "rv32i", 5) != 0) exit(-1);
 
-
     VM32 *vm = init_vm32();
 
     register_rv32i_instructions(vm->table, vm->rtypeTable);
-
-    printf("test\n");
 
     int i = 5;
     while(specs[i] != '\0') {

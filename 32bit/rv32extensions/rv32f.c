@@ -1,6 +1,6 @@
 #include "rv32f.h"
-#include "bus.h"
-#include "float_types.h"
+#include "../bus.h"
+#include "../float_types.h"
 #include <fenv.h>
 #include <math.h>
 #include <stdio.h>

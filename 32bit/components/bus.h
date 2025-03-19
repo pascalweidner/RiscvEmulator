@@ -1,6 +1,6 @@
 #ifndef BUS_H
 #define BUS_H
-#include "includes.h"
+#include "../includes.h"
 #include "dram.h"
 
 typedef struct BUS32 {

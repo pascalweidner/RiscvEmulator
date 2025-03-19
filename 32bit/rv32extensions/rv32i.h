@@ -1,7 +1,7 @@
 #ifndef CPU_H
 #define CPU_H
-#include "includes.h"
-#include "cpu32.h"
+#include "../includes.h"
+#include "../cpu32.h"
 
 #define RTYPE 0b0110011
 #define STYPE 0b0100011

@@ -1,7 +1,7 @@
 #ifndef RV32M_H_
 #define RV32M_H_
-#include "includes.h"
-#include "cpu32.h"
+#include "../includes.h"
+#include "../cpu32.h"
 
 #define MUL_INST 0b0000000001
 #define MUL_H_INST 0b0010000001
