@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "/usr/include/**",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder/dependencies"
             ],
             "defines": [],
             "compilerPath": "",

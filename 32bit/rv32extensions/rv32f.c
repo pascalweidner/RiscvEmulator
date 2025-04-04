@@ -1,11 +1,12 @@
-#include "rv32f.h"
-#include "../bus.h"
-#include "../float_types.h"
+#include <float_types.h>
 #include <fenv.h>
 #include <math.h>
 #include <stdio.h>
 #include <immintrin.h>
 #include <float.h>
+
+#include "rv32f.h"
+#include "../components/bus.h"
 
 #define MIN_FCVTWS -2147483648
 #define MAX_FCVTWS 2147483647

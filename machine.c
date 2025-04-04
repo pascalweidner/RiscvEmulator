@@ -1,9 +1,7 @@
 #include "machine.h"
-#include "cpu32.h"
-#include "rv32extensions/rv32i.h"
-#include "rv32extensions/rv32m.h"
-#include "includes.h"
-#include "rv32extensions/rv32f.h"
+#include "32bit/rv32extensions/rv32i.h"
+#include "32bit/rv32extensions/rv32m.h"
+#include "32bit/rv32extensions/rv32f.h"
 #include <ctype.h>
 #include <stdint.h>
 

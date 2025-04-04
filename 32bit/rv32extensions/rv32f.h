@@ -1,7 +1,7 @@
 #ifndef RV32F_H_
 #define RV32F_H_
 #include "../cpu32.h"
-#include "../includes.h"
+#include <includes.h>
 #include <stdint.h>
 
 #define FITYPE 0b0000111

@@ -1,7 +1,7 @@
 #ifndef CPU32_H_
 #define CPU32_H_
-#include "components_32/bus.h"
-#include "compoents_32/dram.h"
+#include "components/bus.h"
+#include "components/dram.h"
 #include "float_types.h"
 
 typedef struct vCPU32 vCPU32;
