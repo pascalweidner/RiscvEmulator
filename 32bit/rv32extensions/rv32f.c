@@ -1,17 +1,16 @@
 #include <float_types.h>
 #include <fenv.h>
 #include <math.h>
-#include <stdio.h>
 #include <immintrin.h>
 #include <float.h>
 
 #include "rv32f.h"
 #include "../components/bus.h"
 
-#define MIN_FCVTWS -2147483648
-#define MAX_FCVTWS 2147483647
-#define MIN_FCVTWUS 0
-#define MAX_FCVTWUS 4294967295
+#define MIN_FCVTWS -2147483648 // 
+#define MAX_FCVTWS 2147483647 //
+#define MIN_FCVTWUS 0 //
+#define MAX_FCVTWUS 4294967295 // 
 
 //TODO: Handle signaling Nan as operands and other exceptions
 
@@ -27,6 +26,7 @@ static inline int is_quiet_nan(float32_t val) {
     return ((*(uint32_t *)&val) & 0xFFC00000) == QNAN;
 }
 
+// sets the rounding mode for arithmetic instructions
 static inline void setRM(vCPU32 *cpu, uint8_t rm) {
     switch(rm) {
         case 0: // RNE
@@ -42,7 +42,12 @@ static inline void setRM(vCPU32 *cpu, uint8_t rm) {
             fesetround(FE_UPWARD);
             break;
         case 7:
+            /* 
+                Get the frm bits from the fcsr register.
+
+            */
             uint8_t frm = (cpu->fcsr >> 5) & 0b111;
+            
             switch(frm) {
                 case 0:
                     fesetround(FE_TONEAREST);

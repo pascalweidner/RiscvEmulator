@@ -9,7 +9,9 @@ typedef struct DRAM32 {
     uint8_t mem[DRAM_SIZE];
 } DRAM32;
 
-
+/*
+ * There are two functions. Even though both return unsigned values one will be sign-extended the other zero-extended
+*/
 /*
     @param dram: pointer to a global dram instance, where the data is stored
     @param addr: address, from where you want to get the data
@@ -37,6 +39,7 @@ uint32_t dram32_loadU(DRAM32 *dram, uint32_t addr, uint32_t size);
 */
 void dram32_store(DRAM32 *dram, uint32_t addr, uint32_t size, uint32_t value);
 
+// allocates a new DRAM object on the heap
 DRAM32 *init_dram32();
 
 void free_dram32(DRAM32 *dram);

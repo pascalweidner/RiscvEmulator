@@ -3,5 +3,9 @@
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "includes.h": "c"
-    }
+    },
+    "cSpell.words": [
+        "FCVTWS",
+        "FCVTWUS"
+    ]
 }
