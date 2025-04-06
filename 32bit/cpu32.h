@@ -3,6 +3,7 @@
 #include "components/bus.h"
 #include "components/dram.h"
 #include "float_types.h"
+#include <stdint.h>
 
 typedef struct vCPU32 vCPU32;
 
@@ -15,6 +16,8 @@ typedef void (*FRTypeInstructionHandler)(vCPU32 *cpu, uint8_t rd, uint8_t rs1, u
 typedef void (*FSTypeInstructionHandler)(vCPU32 *cpu, uint16_t imm, uint8_t rs1, uint8_t rs2);
 
 typedef void (*FITypeInstructionHandler)(vCPU32 *cpu, uint16_t imm, uint8_t rd, uint8_t rs1);
+
+typedef void (*FNMTypeInstructionHandler)(vCPU32 *cpu, uint32_t instr, uint8_t rd);
 
 struct vCPU32 {
     uint32_t x[32];

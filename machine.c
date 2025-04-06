@@ -2,6 +2,7 @@
 #include "32bit/rv32extensions/rv32i.h"
 #include "32bit/rv32extensions/rv32m.h"
 #include "32bit/rv32extensions/rv32f.h"
+#include "cpu32.h"
 #include <ctype.h>
 #include <stdint.h>
 
@@ -46,6 +47,7 @@ static void register_rv32i_instructions(InstructionHandler *table, RTypeInstruct
     register_handler(table, UTYPE, utype);
     register_handler(table, UTYPE2, utype2);
     register_handler(table, BTYPE, btype);
+    
     register_handler(table, EBREAK, ebreak);
 
     register_rtypeHandler(rtypeTable, ADD_INST, add_handler);
@@ -73,10 +75,10 @@ static void register_rv32m_instructions(RTypeInstructionHandler *rtypeTable) {
 
 static void register_rv32f_instructions(InstructionHandler *table, FSTypeInstructionHandler *fstypeTable, FITypeInstructionHandler *fitypeTable, FRTypeInstructionHandler *frtypeTable) {
     register_handler(table, FRTYPE, frtype);
-    register_handler(table, FMADD, fmadd);
-    register_handler(table, FMSUB, fmsub);
-    register_handler(table, FNMSUB, fnmsub);
-    register_handler(table, FNMADD, fnmadd);
+    register_handler(table, FMADD, fmadd_handler);
+    register_handler(table, FMSUB, fmsub_handler);
+    register_handler(table, FNMADD, fnmadd_handler);
+    register_handler(table, FNMSUB, fnmsub_handler);
     register_handler(table, FSTYPE, fstype);
     register_handler(table, FITYPE, fitype);
 

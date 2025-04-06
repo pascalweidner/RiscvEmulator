@@ -3,9 +3,11 @@
 #include <math.h>
 #include <immintrin.h>
 #include <float.h>
+#include <stdint.h>
 
 #include "rv32f.h"
 #include "../components/bus.h"
+
 
 #define MIN_FCVTWS -2147483648 // 
 #define MAX_FCVTWS 2147483647 //
@@ -293,8 +295,17 @@ void fsw_handler(vCPU32 *cpu, uint16_t imm, uint8_t rs1, uint8_t rs2) {
     bus32_store_dram(&(cpu->bus), cpu->x[rs1] + (int32_t)imm, 32, value);
 }
 
+static inline float32_t fmadd_fallback(float32_t a, float32_t b, float32_t c) {
+    #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+        return fmaf(a, b, c);
+    #else 
+        return (a * b) + c;
+    #endif
+
+}
+
 //TODO set invalid operation flag when rs1 and rs2 are infinity or zero in the fma instructions, even when the added is a quiet NaN
-void fmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+void fmadd_handler(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rm = inst & 0b111;
     inst >>= 3;
     uint8_t rs1 = inst & 0b11111;
@@ -302,12 +313,12 @@ void fmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rs2 = inst & 0b11111;
     inst >>= 7;
     uint8_t rs3 = inst & 0b11111;
-    setRM(cpu, rm);   
+    setRM(cpu, rm);  
 
-    cpu->f[rd] = fmaf(cpu->f[rs1], cpu->f[rs2], cpu->f[rs3]);
+    cpu->f[rd] = fmadd_fallback(cpu->f[rs1], cpu->f[rs2], cpu->f[rs3]); // TODO: does the rounding mode then still work
 }
 
-void fmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+void fmsub_handler(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rm = inst & 0b111;
     inst >>= 3;
     uint8_t rs1 = inst & 0b11111;
@@ -317,10 +328,10 @@ void fmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rs3 = inst & 0b11111;
     setRM(cpu, rm);
 
-    cpu->f[rd] = fmaf(cpu->f[rs1], cpu->f[rs2], -(cpu->f[rs3]));
+    cpu->f[rd] = fmadd_fallback(cpu->f[rs1], cpu->f[rs2], -(cpu->f[rs3]));
 }
 
-void fnmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+void fnmadd_handler(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rm = inst & 0b111;
     inst >>= 3;
     uint8_t rs1 = inst & 0b11111;
@@ -330,10 +341,10 @@ void fnmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rs3 = inst & 0b11111;
     setRM(cpu, rm);
 
-    cpu->f[rd] = -fma(cpu->f[rs1], cpu->f[rs2], -(cpu->f[rs3]));
+    cpu->f[rd] = -fmadd_fallback(cpu->f[rs1], cpu->f[rs2], -(cpu->f[rs3]));
 }
 
-void fnmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
+void fnmsub_handler(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rm = inst & 0b111;
     inst >>= 3;
     uint8_t rs1 = inst & 0b11111;
@@ -343,5 +354,5 @@ void fnmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rs3 = inst & 0b11111;
     setRM(cpu, rm);
 
-    cpu->f[rd] = -fma(cpu->f[rs1], cpu->f[rs2], cpu->f[rs3]);
+    cpu->f[rd] = -fmadd_fallback(cpu->f[rs1], cpu->f[rs2], cpu->f[rs3]);
 }
