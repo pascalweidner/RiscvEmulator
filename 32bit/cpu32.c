@@ -33,16 +33,36 @@ void cpu32_run(vCPU32 *cpu) {
     }
 }
 
-static int cpu32_execute(vCPU32 *cpu) {
-    uint32_t inst = bus32_load_dram(&cpu->bus, cpu->pc, 32);
+static void raiseIllegalInstruction(vCPU32 *cpu, uint32_t instr) {
+    // sets the mcause register to 2, which equals a Illegal instruction exception
+    cpu->csr[MCAUSE] = 2;
+    // safes the address of the illegal instruction
+    cpu->csr[MEPC] = cpu->pc;
+    // safes the illegal instruction
+    cpu->csr[MTVAL] = instr;
+    // jumps to the exception handler
+    // it doesn't matter if it is vectored or direct, since for exception we always use the direct approach
+    cpu->pc = cpu->csr[MTVEC] & 0xFFFFFFFC;
+    cpu->privilege = M;
+}
 
-    uint8_t op = inst & 0b01111111;
-    inst >>= 7;
-    uint8_t rd = inst & 0b00011111;
-    inst >>= 5;
+static int cpu32_execute(vCPU32 *cpu) {
+    uint32_t instr = bus32_load_dram(&cpu->bus, cpu->pc, 32);
+
+    uint8_t op = instr & 0b01111111;
+    instr >>= 7;
+    uint8_t rd = instr & 0b00011111;
+    instr >>= 5;
 
     printf("opcode %d\n", op);
-    cpu->table[op](cpu, inst, rd);
+    InstructionHandler handler = cpu->table[op];
+    if(handler == NULL) {
+        raiseIllegalInstruction(cpu, instr);
+        return 0;
+    }
+    else {
+        handler(cpu, instr, rd);
+    }
 
     return 0;
 }
@@ -58,6 +78,7 @@ void rtype(vCPU32* cpu, uint32_t inst, uint8_t rd)
     funct = (funct << 7) | inst;
 
     ((cpu->rtypeTable)[funct])(cpu, rd, rs1, rs2);
+    //TODO: throw exception
 
     cpu->pc += 4;
 }
@@ -92,6 +113,9 @@ behavior dependent on the EEI.)*/
             break;
         case SW_INST:
             bus32_store_dram(&(cpu->bus), cpu->x[rs1] + imm, 32, cpu->x[rs2]);
+            break;
+        default:
+            //TODO throw exception
             break;
     }
 
@@ -150,6 +174,8 @@ void btype(vCPU32* cpu, uint32_t inst, uint8_t imm1)
             if(rs1 >= rs2) cpu->pc += imm;
             cpu->pc += 4;
             break;
+        default:
+            //TODO throw exception
     }
 }
 
@@ -196,6 +222,9 @@ void itype(vCPU32 *cpu, uint32_t inst, uint8_t rd)
         case LHU_INST:
             cpu->x[rd] = bus32_loadU_dram(&(cpu->bus), cpu->x[rs1] + inst, 16);
             break;
+        default:
+            // TODO: throw exception
+            break;
     }
 
     cpu->pc += 4;
@@ -218,6 +247,8 @@ void itype2(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t rs1 = inst & 0b00011111;
     inst >>= 5;
 
+    uint8_t imm;
+
     switch(funct3) {
         case ADDI_INST:
             if((inst >> 10)) inst |= 0xFFFFF000;
@@ -239,7 +270,7 @@ void itype2(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
             cpu->x[rd] = cpu->x[rs1] ^ (uint32_t)(inst);
             break;
         case SR_INST:
-            uint8_t imm = inst & 00011111;
+            imm = (inst & 00011111);
             inst >>= 5;
             switch(inst) {
                 case SRLI_INST:
@@ -257,6 +288,9 @@ void itype2(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
         case ANDI_INST:
             if((inst >> 10)) inst |= 0xFFFFF000;
             cpu->x[rd] = cpu->x[rs1] & inst;
+            break;
+        default:
+            //TODO: throw exception
             break;
     }
 
@@ -302,6 +336,7 @@ void fitype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint16_t imm = inst;
 
     cpu->fitypeTable[funct3](cpu, imm, rd, rs1);
+    //TODO: throw exception
 }
 
 void frtype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
@@ -314,6 +349,7 @@ void frtype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     uint8_t funct7 = inst;
 
     cpu->frtypeTable[funct7](cpu, rd, rs1, rs2, rm);
+    //TODO: throw exception
 }
 
 void fstype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
@@ -327,4 +363,5 @@ void fstype(vCPU32 *cpu, uint32_t inst, uint8_t rd) {
     imm |= rd;
 
     cpu->fstypeTable[funct3](cpu, imm, rs1, rs2);
+    //TODO: throw exception
 }

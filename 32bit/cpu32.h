@@ -5,6 +5,11 @@
 #include "float_types.h"
 #include <stdint.h>
 
+#define MTVEC 0x305
+#define MEPC 0x341
+#define MCAUSE 0x342
+#define MTVAL 0x343
+
 typedef struct vCPU32 vCPU32;
 
 typedef void (*InstructionHandler)(vCPU32 *cpu, uint32_t instruction, uint8_t rd);
@@ -19,12 +24,17 @@ typedef void (*FITypeInstructionHandler)(vCPU32 *cpu, uint16_t imm, uint8_t rd, 
 
 typedef void (*FNMTypeInstructionHandler)(vCPU32 *cpu, uint32_t instr, uint8_t rd);
 
+typedef enum privilege {
+    M = 3, U = 0
+} privilege;
+
 struct vCPU32 {
     uint32_t x[32];
     float32_t f[32];
     uint32_t fcsr;
     uint32_t pc;
     BUS32 bus;
+    privilege privilege;
 
     //CSR-Registers
     //csr[11:0] csr[11:10] -> registers is read/write 00, 01, 10 or read-only 11; csr[9:8] -> encode the lowest privilege level that can access the CSR (M-Mode 11; User_Mode 00)
@@ -73,6 +83,12 @@ void fnmsub(vCPU32 *cpu, uint32_t inst, uint8_t rd);
 void fnmadd(vCPU32 *cpu, uint32_t inst, uint8_t rd);
 
 
-
+// exception handler for instruction is not supported
+void exceptionHandler(vCPU32 *cpu, uint32_t instruction, uint8_t rd);
+void rTypeExceptionHandler(vCPU32 *cpu, uint8_t rd, uint8_t rs1, uint8_t rs);
+void frTypeExceptionHandler(vCPU32 *cpu, uint8_t rd, uint8_t rs1, uint8_t rs2, uint8_t rm);
+void fsTypeExceptionHandler(vCPU32 *cpu, uint16_t imm, uint8_t rs1, uint8_t rs2);
+void fiTypeExceptionHandler(vCPU32 *cpu, uint16_t imm, uint8_t rd, uint8_t rs1);
+void fnmTypeExceptionHandler(vCPU32 *cpu, uint32_t instr, uint8_t rd);
 
 #endif
